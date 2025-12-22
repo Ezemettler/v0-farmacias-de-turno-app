@@ -20,10 +20,10 @@ export function hoyArgentinaYYYYMMDD(): string {
   return `${year}-${month}-${day}`;
 }
 
-// Convierte YYYY-MM-DD a texto humano en español (Argentina), ej: "sábado 20 de diciembre"
+
 export function fechaHumanaArgentina(yyyyMmDd: string): string {
-  const [y, m, d] = yyyyMmDd.split("-").map(Number);
-  const date = new Date(Date.UTC(y, m - 1, d));
+  // Usamos mediodía UTC para evitar que por huso horario se vaya al día anterior/siguiente
+  const date = new Date(`${yyyyMmDd}T12:00:00Z`);
 
   return new Intl.DateTimeFormat("es-AR", {
     timeZone: "America/Argentina/Buenos_Aires",
