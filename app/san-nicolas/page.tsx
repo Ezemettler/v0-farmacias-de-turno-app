@@ -5,6 +5,8 @@ import { ChevronRight, MapPin, Clock, Info } from "lucide-react"
 import { PharmacyCard } from "@/components/pharmacy-card"
 import { pharmacyData } from "@/lib/data"
 import type { Metadata } from "next"
+import { hoyArgentinaYYYYMMDD, fechaHumanaArgentina } from "@/lib/fechaArgentina";
+
 
 export const metadata: Metadata = {
   title: "Farmacias de turno hoy en San Nicolás | Web farmacias de turno",
@@ -12,30 +14,16 @@ export const metadata: Metadata = {
     "Farmacias de turno hoy en San Nicolás de los Arroyos. Información actualizada con direcciones, teléfonos y horarios.",
 }
 
+
 function getCurrentDate() {
-  const days = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]
-  const months = [
-    "enero",
-    "febrero",
-    "marzo",
-    "abril",
-    "mayo",
-    "junio",
-    "julio",
-    "agosto",
-    "septiembre",
-    "octubre",
-    "noviembre",
-    "diciembre",
-  ]
+  const hoy = hoyArgentinaYYYYMMDD()
+  const hoyTexto = fechaHumanaArgentina(hoy)
 
-  const now = new Date()
-  const dayName = days[now.getDay()]
-  const day = now.getDate()
-  const month = months[now.getMonth()]
-
-  return { dayName, day, month, dateString: `${dayName} ${day} de ${month}` }
+  return {
+    dateString: hoyTexto, // ej: "sábado 20 de diciembre"
+  }
 }
+
 
 export default function SanNicolasPage() {
   const currentDate = getCurrentDate()
