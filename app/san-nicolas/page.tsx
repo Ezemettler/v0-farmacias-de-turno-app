@@ -8,7 +8,8 @@ import { ChevronRight, MapPin, Clock, Info } from "lucide-react"
 import { PharmacyCard } from "@/components/pharmacy-card"
 import { pharmacyData } from "@/lib/data"
 import type { Metadata } from "next"
-import { hoyArgentinaYYYYMMDD, fechaHumanaArgentina } from "@/lib/fechaArgentina";
+import { hoyArgentinaYYYYMMDD, hoyArgentinaHumano } from "@/lib/fechaArgentina"
+
 
 
 export const metadata: Metadata = {
@@ -18,28 +19,19 @@ export const metadata: Metadata = {
 }
 
 
-function getCurrentDate() {
-  const hoy = hoyArgentinaYYYYMMDD()
-  const hoyTexto = fechaHumanaArgentina(hoy)
-
-  return {
-    dateString: hoyTexto, // ej: "sábado 20 de diciembre"
-  }
-}
-
 
 export default function SanNicolasPage() {
-  const currentDate = getCurrentDate()
-  const today = new Date().toISOString().split("T")[0]
+  const hoyISO = hoyArgentinaYYYYMMDD();
+  const currentDate = { dateString: hoyArgentinaHumano() };
 
   // Filter pharmacies on duty today
   const pharmaciesOnDutyToday = pharmacyData.filter(
-    (pharmacy) => pharmacy.city === "San Nicolás de los Arroyos" && pharmacy.dutyDate === today,
+    (pharmacy) => pharmacy.city === "San Nicolás de los Arroyos" && pharmacy.dutyDate === hoyISO,
   )
 
   // Get all other pharmacies in the city
   const otherPharmacies = pharmacyData.filter(
-    (pharmacy) => pharmacy.city === "San Nicolás de los Arroyos" && pharmacy.dutyDate !== today,
+    (pharmacy) => pharmacy.city === "San Nicolás de los Arroyos" && pharmacy.dutyDate !== hoyISO,
   )
 
   return (
