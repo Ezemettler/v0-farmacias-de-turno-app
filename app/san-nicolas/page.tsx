@@ -26,13 +26,17 @@ function normalize(s: unknown) {
 
 // Convierte "2025-12-23T03:00:00.000Z" -> "2025-12-23" en horario Argentina
 function fechaISOArgentinaFromISODateTime(iso: string) {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return "" // <- evita RangeError
+
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Argentina/Buenos_Aires",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(new Date(iso))
+  }).format(d)
 }
+
 
 async function fetchTurnos(ciudad: string): Promise<TurnoRow[]> {
   const baseUrl = process.env.SHEETS_API_URL
