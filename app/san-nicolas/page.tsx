@@ -25,9 +25,20 @@ function normalize(s: unknown) {
 }
 
 // Convierte "2025-12-23T03:00:00.000Z" -> "2025-12-23" en horario Argentina
-function fechaISOArgentinaFromISODateTime(iso: string) {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return "" // <- evita RangeError
+function fechaISOArgentinaFromISODateTime(value: string) {
+  const raw = String(value ?? "").trim()
+  if (!raw) return ""
+
+  // Caso 1: viene "23/12/2025" (DD/MM/YYYY)
+  const m = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  if (m) {
+    const [, dd, mm, yyyy] = m
+    return `${yyyy}-${mm}-${dd}` // "2025-12-23"
+  }
+
+  // Caso 2: viene ISO / DateTime ("2025-12-23T03:00:00.000Z" o "2025-12-23")
+  const d = new Date(raw)
+  if (Number.isNaN(d.getTime())) return ""
 
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Argentina/Buenos_Aires",
@@ -36,6 +47,7 @@ function fechaISOArgentinaFromISODateTime(iso: string) {
     day: "2-digit",
   }).format(d)
 }
+
 
 
 async function fetchTurnos(ciudad: string): Promise<TurnoRow[]> {
