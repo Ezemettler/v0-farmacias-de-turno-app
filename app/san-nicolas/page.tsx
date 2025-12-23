@@ -72,13 +72,15 @@ export default async function SanNicolasPage() {
     (x) => normalize(x.ciudad) === normalize(ciudadParam)
   )
 
-  const pharmaciesOnDutyToday = turnosSanNicolas.filter(
-    (x) => fechaISOArgentinaFromISODateTime(x.fecha_turno) === hoyISO
-  )
-
-  const otherPharmacies = turnosSanNicolas.filter(
-    (x) => fechaISOArgentinaFromISODateTime(x.fecha_turno) !== hoyISO
-  )
+  const pharmaciesOnDutyToday = turnosSanNicolas.filter((x) => {
+    const f = fechaISOArgentinaFromISODateTime(x.fecha_turno)
+    return f !== "" && f === hoyISO
+  })
+  
+  const otherPharmacies = turnosSanNicolas.filter((x) => {
+    const f = fechaISOArgentinaFromISODateTime(x.fecha_turno)
+    return f !== "" && f !== hoyISO
+  })
 
 
   return (
