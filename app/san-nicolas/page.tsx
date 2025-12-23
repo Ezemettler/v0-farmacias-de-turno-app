@@ -6,9 +6,45 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { ChevronRight, MapPin, Clock, Info } from "lucide-react"
 import { PharmacyCard } from "@/components/pharmacy-card"
-import { pharmacyData } from "@/lib/data"
 import type { Metadata } from "next"
 import { hoyArgentinaYYYYMMDD, hoyArgentinaHumano } from "@/lib/fechaArgentina"
+
+
+type TurnoRow = {
+  ciudad: string
+  "fecha turno": string
+  "nombre farmacia": string
+  direccion: string
+  telefono: string | number
+  "horario turno": string
+  notas: string
+}
+
+function normalize(s: unknown) {
+  return String(s ?? "").trim().toLowerCase()
+}
+
+// Convierte "2025-12-23T03:00:00.000Z" -> "2025-12-23" en horario Argentina
+function fechaISOArgentinaFromISODateTime(iso: string) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(iso))
+}
+
+async function fetchTurnos(ciudad: string): Promise<TurnoRow[]> {
+  const baseUrl = process.env.SHEETS_API_URL
+  if (!baseUrl) throw new Error("Falta SHEETS_API_URL en Vercel env vars")
+
+  const url = `${baseUrl}?ciudad=${encodeURIComponent(ciudad)}`
+  const res = await fetch(url, { cache: "no-store" })
+  if (!res.ok) throw new Error(`Error fetch turnos: ${res.status}`)
+
+  const json = await res.json()
+  return (json.data ?? []) as TurnoRow[]
+}
 
 
 
@@ -20,19 +56,26 @@ export const metadata: Metadata = {
 
 
 
-export default function SanNicolasPage() {
-  const hoyISO = hoyArgentinaYYYYMMDD();
-  const currentDate = { dateString: hoyArgentinaHumano() };
+export default async function SanNicolasPage() {
+  
+  const hoyISO = hoyArgentinaYYYYMMDD()
+  const currentDate = { dateString: hoyArgentinaHumano() }
 
-  // Filter pharmacies on duty today
-  const pharmaciesOnDutyToday = pharmacyData.filter(
-    (pharmacy) => pharmacy.city === "San Nicolás de los Arroyos" && pharmacy.dutyDate === hoyISO,
+  const ciudadParam = "San nicolas de los arroyos"
+  const turnos = await fetchTurnos(ciudadParam)
+
+  const turnosSanNicolas = turnos.filter(
+    (x) => normalize(x.ciudad) === normalize(ciudadParam)
   )
 
-  // Get all other pharmacies in the city
-  const otherPharmacies = pharmacyData.filter(
-    (pharmacy) => pharmacy.city === "San Nicolás de los Arroyos" && pharmacy.dutyDate !== hoyISO,
+  const pharmaciesOnDutyToday = turnosSanNicolas.filter(
+    (x) => fechaISOArgentinaFromISODateTime(x["fecha turno"]) === hoyISO
   )
+
+  const otherPharmacies = turnosSanNicolas.filter(
+    (x) => fechaISOArgentinaFromISODateTime(x["fecha turno"]) !== hoyISO
+  )
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -79,8 +122,18 @@ export default function SanNicolasPage() {
                 <Badge className="bg-accent text-accent-foreground">{pharmaciesOnDutyToday.length}</Badge>
               </div>
               <div className="grid gap-4">
-                {pharmaciesOnDutyToday.map((pharmacy, index) => (
-                  <PharmacyCard key={index} pharmacy={pharmacy} isOnDuty={true} />
+                {pharmaciesOnDutyToday.map((x, index) => (
+                  <PharmacyCard
+                    key={index}
+                    pharmacy={{
+                      name: x["nombre farmacia"],
+                      address: x.direccion,
+                      phone: String(x.telefono ?? ""),
+                      hours: x["horario turno"],
+                      notes: x.notas,
+                    }}
+                    isOnDuty={true}
+                  />
                 ))}
               </div>
             </section>
@@ -110,8 +163,18 @@ export default function SanNicolasPage() {
                 <p className="text-muted-foreground">Estas farmacias pueden estar disponibles en otros días.</p>
               </div>
               <div className="grid gap-3">
-                {otherPharmacies.map((pharmacy, index) => (
-                  <PharmacyCard key={index} pharmacy={pharmacy} isOnDuty={false} />
+                {otherPharmacies.map((x, index) => (
+                    <PharmacyCard
+                      key={index}
+                      pharmacy={{
+                        name: x["nombre farmacia"],
+                        address: x.direccion,
+                        phone: String(x.telefono ?? ""),
+                        hours: x["horario turno"],
+                        notes: x.notas,
+                      }}
+                      isOnDuty={false}
+                    />
                 ))}
               </div>
             </section>
