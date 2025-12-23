@@ -87,22 +87,19 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
 
       <CardContent className="space-y-3">
         {/* Botón llamar SOLO si está de turno y hay teléfono */}
-        {isOnDuty && phone && (
-          <Button size="lg" className="w-full md:w-auto text-lg py-6" onClick={handleCall}>
-            <Phone className="w-5 h-5 mr-2" />
-            Llamar ahora
+        {isOnDuty && (
+          <Button
+            asChild
+            size="lg"
+            className="w-full md:w-auto text-lg py-6"
+          >
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
+              <MapPin className="w-5 h-5 mr-2" />
+              Ver en Maps
+            </a>
           </Button>
         )}
 
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
-        >
-          <MapPin className="w-4 h-4" />
-          Ver en Maps
-        </a>
       </CardContent>
     </Card>
   )
