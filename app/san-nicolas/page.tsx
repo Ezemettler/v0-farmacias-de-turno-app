@@ -12,12 +12,12 @@ import { hoyArgentinaYYYYMMDD, hoyArgentinaHumano } from "@/lib/fechaArgentina"
 
 type TurnoRow = {
   ciudad: string
-  "fecha turno": string
-  "nombre farmacia": string
+  fecha_turno: string
+  nombre_farmacia: string
   direccion: string
-  telefono: string | number
-  "horario turno": string
-  notas: string
+  telefono?: string | number
+  horario_turno?: string
+  notas?: string
 }
 
 function normalize(s: unknown) {
@@ -69,11 +69,11 @@ export default async function SanNicolasPage() {
   )
 
   const pharmaciesOnDutyToday = turnosSanNicolas.filter(
-    (x) => fechaISOArgentinaFromISODateTime(x["fecha turno"]) === hoyISO
+    (x) => fechaISOArgentinaFromISODateTime(x.fecha_turno) === hoyISO
   )
 
   const otherPharmacies = turnosSanNicolas.filter(
-    (x) => fechaISOArgentinaFromISODateTime(x["fecha turno"]) !== hoyISO
+    (x) => fechaISOArgentinaFromISODateTime(x.fecha_turno) !== hoyISO
   )
 
 
@@ -126,10 +126,10 @@ export default async function SanNicolasPage() {
                   <PharmacyCard
                     key={index}
                     pharmacy={{
-                      name: x["nombre farmacia"],
+                      name: x.nombre_farmacia,
                       address: x.direccion,
                       phone: String(x.telefono ?? ""),
-                      hours: x["horario turno"],
+                      hours: x.horario_turno,
                       notes: x.notas,
                     }}
                     isOnDuty={true}
@@ -167,10 +167,10 @@ export default async function SanNicolasPage() {
                     <PharmacyCard
                       key={index}
                       pharmacy={{
-                        name: x["nombre farmacia"],
+                        name: x.nombre_farmacia,
                         address: x.direccion,
                         phone: String(x.telefono ?? ""),
-                        hours: x["horario turno"],
+                        hours: x.horario_turno,
                         notes: x.notas,
                       }}
                       isOnDuty={false}
