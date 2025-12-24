@@ -86,8 +86,7 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {/* Botón llamar SOLO si está de turno y hay teléfono */}
-        {isOnDuty && (
+        {/* Botón Ver en Maps */}
           <Button
             asChild
             size="lg"
