@@ -65,8 +65,8 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
                 </div>
               )}
 
-              {/* Horario (solo si hay) */}
-              {hours && (
+              {/* el horario solo se ve en las tarjetas “De turno hoy” */}
+              {isOnDuty && hours && (
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 flex-shrink-0" />
                   <span>{hours}</span>
