@@ -97,7 +97,6 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
               Ver en Maps
             </a>
           </Button>
-        )}
 
       </CardContent>
     </Card>
