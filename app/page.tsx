@@ -72,7 +72,7 @@ export default function HomePage() {
               </Card>
             </Link>
 
-                        <Link href="/santa-rosa" className="block">
+            <Link href="/san-fernando" className="block">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
