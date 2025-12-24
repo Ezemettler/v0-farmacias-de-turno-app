@@ -53,9 +53,14 @@ function fechaISOArgentinaFromISODateTime(value: string) {
 function parseARDateTime(raw: string) {
   // Espera "DD/MM/YYYY HH:MM"
   const s = String(raw ?? "").trim()
-  const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})$/)
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})$/)
   if (!m) return null
-  const [, dd, mm, yyyy, HH, MM] = m
+  const [, d1, m1, yyyy, h1, MM] = m
+  
+  const dd = String(d1).padStart(2, "0")
+  const mm = String(m1).padStart(2, "0")
+  const HH = String(h1).padStart(2, "0")
+  
   return {
     isoDate: `${yyyy}-${mm}-${dd}`,
     minutes: Number(HH) * 60 + Number(MM),
@@ -64,8 +69,8 @@ function parseARDateTime(raw: string) {
     yyyy,
     HH,
     MM,
-  }
 }
+
 
 
 // "ahora" en Argentina -> { isoDate: "YYYY-MM-DD", minutes: 0..1439 }
