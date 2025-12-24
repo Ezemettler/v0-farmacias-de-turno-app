@@ -16,8 +16,9 @@ type TurnoRow = {
   nombre_farmacia: string
   direccion: string
   telefono?: string | number
-  horario_turno?: string
   notas?: string
+  inicio_turno?: string
+  fin_turno?: string
 }
 
 function normalize(s: unknown) {
@@ -47,6 +48,65 @@ function fechaISOArgentinaFromISODateTime(value: string) {
     day: "2-digit",
   }).format(d)
 }
+
+
+function parseARDateTime(raw: string) {
+  // Espera "DD/MM/YYYY HH:MM"
+  const s = String(raw ?? "").trim()
+  const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})$/)
+  if (!m) return null
+  const [, dd, mm, yyyy, HH, MM] = m
+  return {
+    isoDate: `${yyyy}-${mm}-${dd}`,
+    minutes: Number(HH) * 60 + Number(MM),
+    dd,
+    mm,
+    yyyy,
+    HH,
+    MM,
+  }
+}
+
+
+// "ahora" en Argentina -> { isoDate: "YYYY-MM-DD", minutes: 0..1439 }
+function nowArgentinaParts() {
+  const d = new Date()
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d)
+
+  const time = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(d)
+
+  const [HH, MM] = time.split(":")
+  return { isoDate: parts, minutes: Number(HH) * 60 + Number(MM) }
+}
+
+// True si ahora está dentro del intervalo [inicio, fin)
+function isOnDutyNow(row: TurnoRow) {
+  const ini = parseARDateTime(String(row.inicio_turno ?? ""))
+  const fin = parseARDateTime(String(row.fin_turno ?? ""))
+  if (!ini || !fin) return false
+
+  const now = nowArgentinaParts()
+
+  // Comparación por (fechaISO, minutos)
+  const toKey = (isoDate: string, minutes: number) => `${isoDate} ${String(minutes).padStart(4, "0")}`
+
+  const nowKey = toKey(now.isoDate, now.minutes)
+  const iniKey = toKey(ini.isoDate, ini.minutes)
+  const finKey = toKey(fin.isoDate, fin.minutes)
+
+  return nowKey >= iniKey && nowKey < finKey
+}
+
 
 
 
@@ -84,15 +144,10 @@ export default async function SanNicolasPage() {
     (x) => normalize(x.ciudad) === normalize(ciudadParam)
   )
 
-  const pharmaciesOnDutyToday = turnosSanFernando.filter((x) => {
-    const f = fechaISOArgentinaFromISODateTime(x.fecha_turno)
-    return f !== "" && f === hoyISO
-  })
-  
-  const otherPharmacies = turnosSanFernando.filter((x) => {
-    const f = fechaISOArgentinaFromISODateTime(x.fecha_turno)
-    return f !== "" && f !== hoyISO
-  })
+  const pharmaciesOnDutyNow = turnosSanFernando.filter(isOnDutyNow)
+
+  const otherPharmacies = turnosSanFernando.filter((x) => !isOnDutyNow(x))
+
 
 
   return (
@@ -130,24 +185,24 @@ export default async function SanNicolasPage() {
                 {currentDate.dateString}
               </Badge>
             </div>
-            <p className="text-lg text-muted-foreground">Estas son las farmacias que están de turno hoy.</p>
+            <p className="text-lg text-muted-foreground">Estas son las farmacias que están de turno ahora.</p>
           </div>
 
-          {pharmaciesOnDutyToday.length > 0 ? (
+          {pharmaciesOnDutyNow.length > 0 ? (
             <section className="space-y-4">
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl font-bold">Farmacias de turno hoy</h2>
-                <Badge className="bg-accent text-accent-foreground">{pharmaciesOnDutyToday.length}</Badge>
+                <Badge className="bg-accent text-accent-foreground">{pharmaciesOnDutyNow.length}</Badge>
               </div>
               <div className="grid gap-4">
-                {pharmaciesOnDutyToday.map((x, index) => (
+                {pharmaciesOnDutyNow.map((x, index) => (
                   <PharmacyCard
                     key={index}
                     pharmacy={{
                       name: x.nombre_farmacia,
                       address: x.direccion,
                       phone: String(x.telefono ?? ""),
-                      hours: x.horario_turno,
+                      hours: `${x.inicio_turno} → ${x.fin_turno}`,
                       notes: x.notas,
                     }}
                     isOnDuty={true}
@@ -188,7 +243,6 @@ export default async function SanNicolasPage() {
                         name: x.nombre_farmacia,
                         address: x.direccion,
                         phone: String(x.telefono ?? ""),
-                        hours: x.horario_turno,
                         notes: x.notas,
                       }}
                       isOnDuty={false}
