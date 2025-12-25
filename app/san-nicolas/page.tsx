@@ -16,7 +16,8 @@ type TurnoRow = {
   nombre_farmacia: string
   direccion: string
   telefono?: string | number
-  horario_turno?: string
+  inicio_turno?: string
+  fin_turno?: string
   notas?: string
 }
 
@@ -49,6 +50,106 @@ function fechaISOArgentinaFromISODateTime(value: string) {
 }
 
 
+function parseARDateTime(raw: string) {
+  const s = String(raw ?? "").trim()
+  if (!s) return null
+
+  // Caso A: "D/M/YYYY H:MM" o "DD/MM/YYYY HH:MM"
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})$/)
+  if (m) {
+    const [, d1, m1, yyyy, h1, MM] = m
+    const dd = String(d1).padStart(2, "0")
+    const mm = String(m1).padStart(2, "0")
+    const HH = String(h1).padStart(2, "0")
+    return {
+      isoDate: `${yyyy}-${mm}-${dd}`,
+      minutes: Number(HH) * 60 + Number(MM),
+    }
+  }
+
+  // Caso B: ISO (lo que devuelve Apps Script)
+  const d = new Date(s)
+  if (Number.isNaN(d.getTime())) return null
+
+  const isoDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d)
+
+  const time = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(d)
+
+  const [HH, MM] = time.split(":")
+  return {
+    isoDate,
+    minutes: Number(HH) * 60 + Number(MM),
+  }
+}
+
+function nowArgentinaParts() {
+  const d = new Date()
+  const isoDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d)
+
+  const time = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(d)
+
+  const [HH, MM] = time.split(":")
+  return { isoDate, minutes: Number(HH) * 60 + Number(MM) }
+}
+
+function isOnDutyNow(row: TurnoRow) {
+  const ini = parseARDateTime(String(row.inicio_turno ?? ""))
+  const fin = parseARDateTime(String(row.fin_turno ?? ""))
+  if (!ini || !fin) return false
+
+  const now = nowArgentinaParts()
+  const key = (d: string, m: number) => `${d} ${String(m).padStart(4, "0")}`
+
+  return (
+    key(now.isoDate, now.minutes) >= key(ini.isoDate, ini.minutes) &&
+    key(now.isoDate, now.minutes) < key(fin.isoDate, fin.minutes)
+  )
+}
+
+
+
+function formatARDateTime(raw: string) {
+  const d = new Date(raw)
+  if (Number.isNaN(d.getTime())) return ""
+
+  const date = new Intl.DateTimeFormat("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    day: "2-digit",
+    month: "2-digit",
+  }).format(d)
+
+  const time = new Intl.DateTimeFormat("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(d)
+
+  return `${date} ${time}`
+}
+
+
+
 
 async function fetchTurnos(ciudad: string): Promise<TurnoRow[]> {
   const baseUrl = process.env.SHEETS_API_URL
@@ -74,7 +175,6 @@ export const metadata: Metadata = {
 
 export default async function SanNicolasPage() {
   
-  const hoyISO = hoyArgentinaYYYYMMDD()
   const currentDate = { dateString: hoyArgentinaHumano() }
 
   const ciudadParam = "San nicolas de los arroyos"
@@ -84,15 +184,8 @@ export default async function SanNicolasPage() {
     (x) => normalize(x.ciudad) === normalize(ciudadParam)
   )
 
-  const pharmaciesOnDutyToday = turnosSanNicolas.filter((x) => {
-    const f = fechaISOArgentinaFromISODateTime(x.fecha_turno)
-    return f !== "" && f === hoyISO
-  })
-  
-  const otherPharmacies = turnosSanNicolas.filter((x) => {
-    const f = fechaISOArgentinaFromISODateTime(x.fecha_turno)
-    return f !== "" && f !== hoyISO
-  })
+  const pharmaciesOnDutyNow = turnosSanNicolas.filter(isOnDutyNow)
+  const otherPharmacies = turnosSanNicolas.filter((x) => !isOnDutyNow(x))
 
 
   return (
@@ -133,21 +226,21 @@ export default async function SanNicolasPage() {
             <p className="text-lg text-muted-foreground">Estas son las farmacias que están de turno hoy.</p>
           </div>
 
-          {pharmaciesOnDutyToday.length > 0 ? (
+          {pharmaciesOnDutyNow.length > 0 ? (
             <section className="space-y-4">
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl font-bold">Farmacias de turno hoy</h2>
-                <Badge className="bg-accent text-accent-foreground">{pharmaciesOnDutyToday.length}</Badge>
+                <Badge className="bg-accent text-accent-foreground">{pharmaciesOnDutyNow.length}</Badge>
               </div>
               <div className="grid gap-4">
-                {pharmaciesOnDutyToday.map((x, index) => (
+                {pharmaciesOnDutyNow.map((x, index) => (
                   <PharmacyCard
                     key={index}
                     pharmacy={{
                       name: x.nombre_farmacia,
                       address: x.direccion,
                       phone: String(x.telefono ?? ""),
-                      hours: x.horario_turno,
+                      hours: `Turno (24 hs): Desde ${formatARDateTime(x.inicio_turno ?? "")} → hasta ${formatARDateTime(x.fin_turno ?? "")}`,
                       notes: x.notas,
                     }}
                     isOnDuty={true}
