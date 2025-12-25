@@ -142,7 +142,6 @@ function formatARDateTime(raw: string) {
     timeZone: "America/Argentina/Buenos_Aires",
     day: "2-digit",
     month: "2-digit",
-    year: "numeric",
   }).format(d)
 
   const time = new Intl.DateTimeFormat("es-AR", {
@@ -154,6 +153,7 @@ function formatARDateTime(raw: string) {
 
   return `${date} ${time}`
 }
+
 
 
 async function fetchTurnos(ciudad: string): Promise<TurnoRow[]> {
