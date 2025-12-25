@@ -280,9 +280,7 @@ export default async function SanNicolasPage() {
                       pharmacy={{
                         name: x.nombre_farmacia,
                         address: x.direccion,
-                        phone: String(x.telefono ?? ""),
-                        hours: x.horario_turno,
-                        notes: x.notas,
+                        phone: String(x.telefono ?? "")
                       }}
                       isOnDuty={false}
                     />
