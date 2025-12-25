@@ -39,7 +39,7 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
           <div className="flex-1">
             <CardTitle className="text-xl md:text-2xl mb-2">{pharmacy.name}</CardTitle>
 
-            {isOnDuty && <Badge className="bg-accent text-accent-foreground mb-2">De turno hoy</Badge>}
+            {isOnDuty && <Badge className="bg-accent text-accent-foreground mb-2">De turno ahora</Badge>}
 
             <CardDescription className="space-y-2 text-base">
               {/* Dirección */}
