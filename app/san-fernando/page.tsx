@@ -134,6 +134,26 @@ function isOnDutyNow(row: TurnoRow) {
 }
 
 
+function formatARDateTime(raw: string) {
+  const d = new Date(raw)
+  if (Number.isNaN(d.getTime())) return ""
+
+  const date = new Intl.DateTimeFormat("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(d)
+
+  const time = new Intl.DateTimeFormat("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(d)
+
+  return `${date} ${time}`
+}
 
 
 async function fetchTurnos(ciudad: string): Promise<TurnoRow[]> {
@@ -228,7 +248,7 @@ export default async function SanNicolasPage() {
                       name: x.nombre_farmacia,
                       address: x.direccion,
                       phone: String(x.telefono ?? ""),
-                      hours: `${x.inicio_turno} → ${x.fin_turno}`,
+                      hours: `${formatARDateTime(x.inicio_turno ?? "")} → ${formatARDateTime(x.fin_turno ?? "")}`,
                       notes: x.notas,
                     }}
                     isOnDuty={true}
