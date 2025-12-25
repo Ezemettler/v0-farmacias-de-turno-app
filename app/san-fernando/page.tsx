@@ -51,25 +51,44 @@ function fechaISOArgentinaFromISODateTime(value: string) {
 
 
 function parseARDateTime(raw: string) {
-  // Acepta "D/M/YYYY H:MM" o "DD/MM/YYYY HH:MM"
   const s = String(raw ?? "").trim()
+  if (!s) return null
+
+  // Caso A: "D/M/YYYY H:MM" o "DD/MM/YYYY HH:MM"
   const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})$/)
-  if (!m) return null
+  if (m) {
+    const [, d1, m1, yyyy, h1, MM] = m
+    const dd = String(d1).padStart(2, "0")
+    const mm = String(m1).padStart(2, "0")
+    const HH = String(h1).padStart(2, "0")
+    return {
+      isoDate: `${yyyy}-${mm}-${dd}`,
+      minutes: Number(HH) * 60 + Number(MM),
+    }
+  }
 
-  const [, d1, m1, yyyy, h1, MM] = m
+  // Caso B: ISO (ej: "2025-12-24T11:30:00.000Z") u otro parseable por Date()
+  const d = new Date(s)
+  if (Number.isNaN(d.getTime())) return null
 
-  const dd = String(d1).padStart(2, "0")
-  const mm = String(m1).padStart(2, "0")
-  const HH = String(h1).padStart(2, "0")
+  const isoDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d)
 
+  const time = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(d)
+
+  const [HH, MM] = time.split(":")
   return {
-    isoDate: `${yyyy}-${mm}-${dd}`,
+    isoDate,
     minutes: Number(HH) * 60 + Number(MM),
-    dd,
-    mm,
-    yyyy,
-    HH,
-    MM,
   }
 }
 
