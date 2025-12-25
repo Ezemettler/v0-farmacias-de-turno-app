@@ -27,6 +27,8 @@ export async function GET() {
   const urls = [
     { loc: `${baseUrl}/`, lastmod },
     { loc: `${baseUrl}/san-nicolas`, lastmod },
+    { loc: `${baseUrl}/san-fernando`, lastmod },
+    { loc: `${baseUrl}/santa-rosa`, lastmod },
   ];
 
   const xml = buildSitemap(urls);
