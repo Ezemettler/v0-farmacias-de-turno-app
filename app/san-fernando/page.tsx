@@ -248,7 +248,7 @@ export default async function SanNicolasPage() {
                       name: x.nombre_farmacia,
                       address: x.direccion,
                       phone: String(x.telefono ?? ""),
-                      hours: `${formatARDateTime(x.inicio_turno ?? "")} → ${formatARDateTime(x.fin_turno ?? "")}`,
+                      hours: `Turno (24 hs): Desde ${formatARDateTime(x.inicio_turno ?? "")} hasta ${formatARDateTime(x.fin_turno ?? "")}`,
                       notes: x.notas,
                     }}
                     isOnDuty={true}
