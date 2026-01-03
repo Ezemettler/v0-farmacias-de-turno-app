@@ -38,6 +38,8 @@ export default function HomePage() {
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Seleccioná tu ciudad</h2>
 
+            <CitySearch cities={cities} />
+
             <Link href="/san-nicolas" className="block">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
                 <CardHeader>
