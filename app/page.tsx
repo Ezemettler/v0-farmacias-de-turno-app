@@ -5,7 +5,7 @@ import { CitySearch } from "@/components/city-search"
 export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Argentina | Web farmacias de turno",
   description:
-    "Encontrá farmacias abiertas hoy en tu ciudad. Información clara y actualizada de farmacias de turno en Argentina.",
+    "Encontrá farmacias abiertas hoy en tu ciudad. Información actualizada de farmacias de turno en Argentina.",
 }
 
 export default function HomePage() {
