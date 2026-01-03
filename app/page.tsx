@@ -55,6 +55,23 @@ export default function HomePage() {
               </Card>
             </Link>
 
+            <Link href="/san-pedro" className="block">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>San Pedro</span>
+                    <MapPin className="w-5 h-5 text-muted-foreground" />
+                  </CardTitle>
+                  <CardDescription>Buenos Aires, Argentina</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button className="w-full md:w-auto" size="lg">
+                    Ver farmacias de turno hoy
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+            
             <Link href="/santa-rosa" className="block">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
                 <CardHeader>
