@@ -1,8 +1,6 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { MapPin } from "lucide-react"
 import type { Metadata } from "next"
+import { CitySearch } from "@/components/city-search"
 
 export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Argentina | Web farmacias de turno",
@@ -11,6 +9,44 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
+  const cities = [
+    {
+      name: "San Nicolás de los Arroyos",
+      slug: "san-nicolas",
+      province: "Buenos Aires",
+    },
+    {
+      name: "San Pedro",
+      slug: "san-pedro",
+      province: "Buenos Aires",
+    },
+    {
+      name: "Santa Rosa",
+      slug: "santa-rosa",
+      province: "La Pampa",
+    },
+    {
+      name: "General Pico",
+      slug: "general-pico",
+      province: "La Pampa",
+    },
+    {
+      name: "San Fernando",
+      slug: "san-fernando",
+      province: "Buenos Aires",
+    },
+    {
+      name: "Venado Tuerto",
+      slug: "venado-tuerto",
+      province: "Santa Fe",
+    },
+    {
+      name: "San Rafael",
+      slug: "san-rafael",
+      province: "Mendoza",
+    },
+  ]
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -37,128 +73,7 @@ export default function HomePage() {
 
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Seleccioná tu ciudad</h2>
-
             <CitySearch cities={cities} />
-
-            <Link href="/san-nicolas" className="block">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>San Nicolás de los Arroyos</span>
-                    <MapPin className="w-5 h-5 text-muted-foreground" />
-                  </CardTitle>
-                  <CardDescription>Buenos Aires, Argentina</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full md:w-auto" size="lg">
-                    Ver farmacias de turno hoy
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/san-pedro" className="block">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>San Pedro</span>
-                    <MapPin className="w-5 h-5 text-muted-foreground" />
-                  </CardTitle>
-                  <CardDescription>Buenos Aires, Argentina</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full md:w-auto" size="lg">
-                    Ver farmacias de turno hoy
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-            
-            <Link href="/santa-rosa" className="block">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>Santa Rosa</span>
-                    <MapPin className="w-5 h-5 text-muted-foreground" />
-                  </CardTitle>
-                  <CardDescription>La Pampa, Argentina</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full md:w-auto" size="lg">
-                    Ver farmacias de turno hoy
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/general-pico" className="block">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>General Pico</span>
-                    <MapPin className="w-5 h-5 text-muted-foreground" />
-                  </CardTitle>
-                  <CardDescription>La Pampa, Argentina</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full md:w-auto" size="lg">
-                    Ver farmacias de turno hoy
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/san-fernando" className="block">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>San Fernando</span>
-                    <MapPin className="w-5 h-5 text-muted-foreground" />
-                  </CardTitle>
-                  <CardDescription>Buenos Aires, Argentina</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full md:w-auto" size="lg">
-                    Ver farmacias de turno hoy
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/venado-tuerto" className="block">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>Venado Tuerto</span>
-                    <MapPin className="w-5 h-5 text-muted-foreground" />
-                  </CardTitle>
-                  <CardDescription>Santa Fe, Argentina</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full md:w-auto" size="lg">
-                    Ver farmacias de turno hoy
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/san-rafael" className="block">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>San Rafael</span>
-                    <MapPin className="w-5 h-5 text-muted-foreground" />
-                  </CardTitle>
-                  <CardDescription>Mendoza, Argentina</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full md:w-auto" size="lg">
-                    Ver farmacias de turno hoy
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-            
           </div>
         </div>
       </main>
