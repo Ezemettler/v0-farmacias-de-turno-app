@@ -1,0 +1,25 @@
+{
+  "name": "farmaciasturno-scrapers",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "scrape": "tsx run-all.ts",
+    "scrape:city": "tsx run-city.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.0",
+    "cheerio": "^1.0.0",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.0.0",
+    "unpdf": "^1.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "tsx": "^4.19.0",
+    "typescript": "^5"
+  },
+  "optionalDependencies": {
+    "playwright": "^1.48.0"
+  }
+}

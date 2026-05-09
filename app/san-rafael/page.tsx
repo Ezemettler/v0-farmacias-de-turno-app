@@ -1,6 +1,4 @@
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 3600
 
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -8,167 +6,9 @@ import Link from "next/link"
 import { ChevronRight, MapPin, Clock, Info } from "lucide-react"
 import { PharmacyCard } from "@/components/pharmacy-card"
 import type { Metadata } from "next"
-import { hoyArgentinaYYYYMMDD, hoyArgentinaHumano } from "@/lib/fechaArgentina"
-
-
-type TurnoRow = {
-  ciudad: string
-  nombre_farmacia: string
-  direccion: string
-  telefono?: string | number
-  notas?: string
-  inicio_turno?: string
-  fin_turno?: string
-}
-
-function normalize(s: unknown) {
-  return String(s ?? "").trim().toLowerCase()
-}
-
-// Convierte "2025-12-23T03:00:00.000Z" -> "2025-12-23" en horario Argentina
-function fechaISOArgentinaFromISODateTime(value: string) {
-  const raw = String(value ?? "").trim()
-  if (!raw) return ""
-
-  // Caso 1: viene "23/12/2025" (DD/MM/YYYY)
-  const m = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
-  if (m) {
-    const [, dd, mm, yyyy] = m
-    return `${yyyy}-${mm}-${dd}` // "2025-12-23"
-  }
-
-  // Caso 2: viene ISO / DateTime ("2025-12-23T03:00:00.000Z" o "2025-12-23")
-  const d = new Date(raw)
-  if (Number.isNaN(d.getTime())) return ""
-
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(d)
-}
-
-
-function parseARDateTime(raw: string) {
-  const s = String(raw ?? "").trim()
-  if (!s) return null
-
-  // Caso A: "D/M/YYYY H:MM" o "DD/MM/YYYY HH:MM"
-  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})$/)
-  if (m) {
-    const [, d1, m1, yyyy, h1, MM] = m
-    const dd = String(d1).padStart(2, "0")
-    const mm = String(m1).padStart(2, "0")
-    const HH = String(h1).padStart(2, "0")
-    return {
-      isoDate: `${yyyy}-${mm}-${dd}`,
-      minutes: Number(HH) * 60 + Number(MM),
-    }
-  }
-
-  // Caso B: ISO (ej: "2025-12-24T11:30:00.000Z") u otro parseable por Date()
-  const d = new Date(s)
-  if (Number.isNaN(d.getTime())) return null
-
-  const isoDate = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(d)
-
-  const time = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(d)
-
-  const [HH, MM] = time.split(":")
-  return {
-    isoDate,
-    minutes: Number(HH) * 60 + Number(MM),
-  }
-}
-
-
-
-// "ahora" en Argentina -> { isoDate: "YYYY-MM-DD", minutes: 0..1439 }
-function nowArgentinaParts() {
-  const d = new Date()
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(d)
-
-  const time = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(d)
-
-  const [HH, MM] = time.split(":")
-  return { isoDate: parts, minutes: Number(HH) * 60 + Number(MM) }
-}
-
-// True si ahora está dentro del intervalo [inicio, fin)
-function isOnDutyNow(row: TurnoRow) {
-  const ini = parseARDateTime(String(row.inicio_turno ?? ""))
-  const fin = parseARDateTime(String(row.fin_turno ?? ""))
-  if (!ini || !fin) return false
-
-  const now = nowArgentinaParts()
-
-  // Comparación por (fechaISO, minutos)
-  const toKey = (isoDate: string, minutes: number) => `${isoDate} ${String(minutes).padStart(4, "0")}`
-
-  const nowKey = toKey(now.isoDate, now.minutes)
-  const iniKey = toKey(ini.isoDate, ini.minutes)
-  const finKey = toKey(fin.isoDate, fin.minutes)
-
-  return nowKey >= iniKey && nowKey < finKey
-}
-
-
-function formatARDateTime(raw: string) {
-  const d = new Date(raw)
-  if (Number.isNaN(d.getTime())) return ""
-
-  const date = new Intl.DateTimeFormat("es-AR", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    day: "2-digit",
-    month: "2-digit",
-  }).format(d)
-
-  const time = new Intl.DateTimeFormat("es-AR", {
-    timeZone: "America/Argentina/Buenos_Aires",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(d)
-
-  return `${date} ${time}`
-}
-
-
-
-async function fetchTurnos(ciudad: string): Promise<TurnoRow[]> {
-  const baseUrl = process.env.SHEETS_API_URL
-  if (!baseUrl) throw new Error("Falta SHEETS_API_URL en Vercel env vars")
-
-  const url = `${baseUrl}?ciudad=${encodeURIComponent(ciudad)}`
-  const res = await fetch(url, { cache: "no-store" })
-  if (!res.ok) throw new Error(`Error fetch turnos: ${res.status}`)
-
-  const json = await res.json()
-  return (json.data ?? []) as TurnoRow[]
-}
-
-
+import { hoyArgentinaHumano } from "@/lib/fechaArgentina"
+import { fetchTurnos } from "@/lib/turnos"
+import { isOnDutyNow, formatARDateTime } from "@/lib/turno-utils"
 
 export const metadata: Metadata = {
   title: "Farmacias de turno hoy en San Rafael | Web farmacias de turno",
@@ -176,25 +16,12 @@ export const metadata: Metadata = {
     "Farmacias de turno hoy en San Rafael. Información actualizada con direcciones, teléfonos y horarios.",
 }
 
-
-
 export default async function SanRafaelPage() {
-  
-  const hoyISO = hoyArgentinaYYYYMMDD()
   const currentDate = { dateString: hoyArgentinaHumano() }
+  const turnos = await fetchTurnos("san-rafael")
 
-  const ciudadParam = "San Rafael"
-  const turnos = await fetchTurnos(ciudadParam)
-
-  const turnosSanRafael = turnos.filter(
-    (x) => normalize(x.ciudad) === normalize(ciudadParam)
-  )
-
-  const pharmaciesOnDutyNow = turnosSanRafael.filter(isOnDutyNow)
-
-  const otherPharmacies = turnosSanRafael.filter((x) => !isOnDutyNow(x))
-
-
+  const pharmaciesOnDutyNow = turnos.filter(isOnDutyNow)
+  const otherPharmacies = turnos.filter((x) => !isOnDutyNow(x))
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -231,7 +58,7 @@ export default async function SanRafaelPage() {
                 {currentDate.dateString}
               </Badge>
             </div>
-            <p className="text-lg text-muted-foreground">Estas son las farmacias que están de turno ahora.</p>
+            <p className="text-lg text-muted-foreground">Estas son las farmacias que están de turno hoy.</p>
           </div>
 
           {pharmaciesOnDutyNow.length > 0 ? (
@@ -247,9 +74,9 @@ export default async function SanRafaelPage() {
                     pharmacy={{
                       name: x.nombre_farmacia,
                       address: x.direccion,
-                      phone: String(x.telefono ?? ""),
-                      hours: `Turno (16 hs): Desde ${formatARDateTime(x.inicio_turno ?? "")} → hasta ${formatARDateTime(x.fin_turno ?? "")}`,
-                      notes: x.notas,
+                      phone: x.telefono ?? "",
+                      hours: `Turno (24 hs): Desde ${formatARDateTime(x.inicio_turno)} → hasta ${formatARDateTime(x.fin_turno)}`,
+                      notes: x.notas ?? undefined,
                     }}
                     isOnDuty={true}
                   />
@@ -283,15 +110,15 @@ export default async function SanRafaelPage() {
               </div>
               <div className="grid gap-3">
                 {otherPharmacies.map((x, index) => (
-                    <PharmacyCard
-                      key={index}
-                      pharmacy={{
-                        name: x.nombre_farmacia,
-                        address: x.direccion,
-                        phone: String(x.telefono ?? "")
-                      }}
-                      isOnDuty={false}
-                    />
+                  <PharmacyCard
+                    key={index}
+                    pharmacy={{
+                      name: x.nombre_farmacia,
+                      address: x.direccion,
+                      phone: x.telefono ?? "",
+                    }}
+                    isOnDuty={false}
+                  />
                 ))}
               </div>
             </section>
