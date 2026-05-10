@@ -19,6 +19,12 @@ export function parseARTimeToISO(fecha: string, horaLocal: string): string | und
   return `${fecha}T${hora}:00-03:00`
 }
 
+/** Devuelve la fecha del día siguiente en formato YYYY-MM-DD. */
+export function siguienteDia(fecha: string): string {
+  const [y, m, d] = fecha.split("-").map(Number)
+  return new Date(Date.UTC(y, m - 1, d + 1)).toISOString().slice(0, 10)
+}
+
 /**
  * Parsea "DD/MM/YYYY HH:MM" o "YYYY-MM-DD HH:MM" a ISO con offset -03:00.
  */

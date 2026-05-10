@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio"
-import { hoyArgentinaYYYYMMDD } from "../../lib/fecha.js"
+import { hoyArgentinaYYYYMMDD, parseARTimeToISO, siguienteDia } from "../../lib/fecha.js"
 import { logger } from "../../lib/logger.js"
 import type { ICityScraper, ScrapedTurno, ScraperResult } from "../../lib/types.js"
 
@@ -115,9 +115,8 @@ export class SanNicolasScraper implements ICityScraper {
         fecha_turno: fecha,
         nombre_farmacia: nombre,
         direccion,
-        // El artículo no expone horarios de inicio/fin
-        inicio_turno: undefined,
-        fin_turno: undefined,
+        inicio_turno: parseARTimeToISO(fecha, "08:30"),
+        fin_turno: parseARTimeToISO(siguienteDia(fecha), "08:30"),
       })
     })
 

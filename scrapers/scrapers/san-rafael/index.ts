@@ -1,4 +1,5 @@
 import { BaseScraper } from "../base-scraper.js"
+import { parseARTimeToISO, siguienteDia } from "../../lib/fecha.js"
 import { logger } from "../../lib/logger.js"
 import type { ScrapedTurno, ScraperResult } from "../../lib/types.js"
 
@@ -157,17 +158,13 @@ export class SanRafaelScraper extends BaseScraper {
           fecha_turno: fecha,
           nombre_farmacia: nombreCompleto,
           direccion: "San Rafael, Mendoza",
-          // El PDF no especifica horario de inicio/fin explícito
-          // "16 HORAS" es la duración, pero no el horario
-          inicio_turno: undefined,
-          fin_turno: undefined,
-          notas: "Turno de 16 horas",
+          inicio_turno: parseARTimeToISO(fecha, "08:30"),
+          fin_turno: parseARTimeToISO(siguienteDia(fecha), "08:30"),
         },
       ]
     }
 
     // Fallback: si no se encontró con el split, buscar directamente con regex
-    // Patrón: número de día seguido de texto hasta el próximo número o fin
     const reFallback = new RegExp(
       `\\b${diaHoy}\\s+([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\\s0-9]+?)\\s+(?=\\d{1,2}\\s+[A-ZÁÉÍÓÚÑ]|16\\s+HORAS|$)`,
       "i"
@@ -181,7 +178,8 @@ export class SanRafaelScraper extends BaseScraper {
           fecha_turno: fecha,
           nombre_farmacia: mFallback[1].trim(),
           direccion: "San Rafael, Mendoza",
-          notas: "Turno de 16 horas",
+          inicio_turno: parseARTimeToISO(fecha, "08:30"),
+          fin_turno: parseARTimeToISO(siguienteDia(fecha), "08:30"),
         },
       ]
     }

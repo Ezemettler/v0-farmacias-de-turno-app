@@ -1,5 +1,6 @@
 import * as cheerio from "cheerio"
 import { BaseScraper } from "../base-scraper.js"
+import { parseARTimeToISO, siguienteDia } from "../../lib/fecha.js"
 import { logger } from "../../lib/logger.js"
 import type { ScrapedTurno, ScraperResult } from "../../lib/types.js"
 
@@ -46,9 +47,8 @@ class InfoPicoScraper extends BaseScraper {
         nombre_farmacia: nombre,
         direccion,
         telefono,
-        // El sitio no expone horario de inicio/fin en el HTML
-        inicio_turno: undefined,
-        fin_turno: undefined,
+        inicio_turno: parseARTimeToISO(fecha, "08:30"),
+        fin_turno: parseARTimeToISO(siguienteDia(fecha), "08:30"),
       })
     })
 
