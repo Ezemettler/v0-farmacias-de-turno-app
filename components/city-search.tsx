@@ -46,7 +46,7 @@ export function CitySearch({ cities }: { cities: City[] }) {
                       <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
                       <span className="truncate">{city.name}</span>
                     </CardTitle>
-                    <Button size="sm" className="shrink-0">
+                    <Button className="shrink-0">
                       Ver turnos
                     </Button>
                   </div>
