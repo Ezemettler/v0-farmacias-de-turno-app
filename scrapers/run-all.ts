@@ -8,18 +8,20 @@ import { ManualFallbackError } from "./lib/types.js"
 
 import { santaRosaScraper, generalPicoScraper } from "./scrapers/santa-rosa/index.js"
 import { sanNicolasScraper } from "./scrapers/san-nicolas/index.js"
-import { venadoTuertoScraper } from "./scrapers/venado-tuerto/index.js"
 import { sanRafaelScraper } from "./scrapers/san-rafael/index.js"
 import { sanPedroScraper } from "./scrapers/san-pedro/index.js"
 import { sanFernandoScraper } from "./scrapers/san-fernando/index.js"
 
+// Venado Tuerto sale temporalmente de la rotación: su única fuente
+// (cofarsf.org.ar) quedó con el dominio caído (NXDOMAIN) y no se encontró
+// un reemplazo confiable. La ciudad también se sacó de app/page.tsx y del
+// sitemap. Reactivar acá cuando haya una fuente nueva.
 const ALL_SCRAPERS: ICityScraper[] = [
   sanNicolasScraper,
   sanPedroScraper,
   santaRosaScraper,
   generalPicoScraper,
   sanFernandoScraper,
-  venadoTuertoScraper,
   sanRafaelScraper,
 ]
 

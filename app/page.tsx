@@ -36,11 +36,6 @@ export default function HomePage() {
       province: "Buenos Aires",
     },
     {
-      name: "Venado Tuerto",
-      slug: "venado-tuerto",
-      province: "Santa Fe",
-    },
-    {
       name: "San Rafael",
       slug: "san-rafael",
       province: "Mendoza",
