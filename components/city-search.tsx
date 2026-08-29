@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
@@ -39,19 +39,19 @@ export function CitySearch({ cities }: { cities: City[] }) {
         <div className="space-y-4">
           {filteredCities.map((city) => (
             <Link key={city.slug} href={`/${city.slug}`} className="block">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{city.name}</span>
-                    <MapPin className="w-5 h-5 text-muted-foreground" />
-                  </CardTitle>
-                  <CardDescription>{city.province}, Argentina</CardDescription>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary py-4">
+                <CardHeader className="gap-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <CardTitle className="flex items-center gap-2 min-w-0 text-base">
+                      <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <span className="truncate">{city.name}</span>
+                    </CardTitle>
+                    <Button size="sm" className="shrink-0">
+                      Ver turnos
+                    </Button>
+                  </div>
+                  <CardDescription className="text-xs">{city.province}, Argentina</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <Button className="w-full md:w-auto" size="lg">
-                    Ver farmacias de turno hoy
-                  </Button>
-                </CardContent>
               </Card>
             </Link>
           ))}
