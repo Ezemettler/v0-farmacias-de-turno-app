@@ -40,6 +40,11 @@ export default function HomePage() {
       slug: "san-rafael",
       province: "Mendoza",
     },
+    {
+      name: "Venado Tuerto",
+      slug: "venado-tuerto",
+      province: "Santa Fe",
+    },
   ]
 
   return (
