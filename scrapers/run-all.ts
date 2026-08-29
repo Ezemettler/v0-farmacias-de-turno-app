@@ -1,6 +1,8 @@
 import { hoyArgentinaYYYYMMDD } from "./lib/fecha.js"
 import { logger } from "./lib/logger.js"
 import { upsertTurnos, registrarScraperRun } from "./lib/upsert.js"
+import { sendTelegramAlert } from "./lib/telegram.js"
+import { supabase } from "./lib/supabase-client.js"
 import type { ICityScraper, ScraperResult } from "./lib/types.js"
 import { ManualFallbackError } from "./lib/types.js"
 
@@ -21,32 +23,96 @@ const ALL_SCRAPERS: ICityScraper[] = [
   sanRafaelScraper,
 ]
 
-async function runScraper(scraper: ICityScraper, fecha: string): Promise<void> {
+interface RunOutcome {
+  ciudad_slug: string
+  outcome: "manual" | "success" | "no_data" | "failed"
+  error_msg?: string
+}
+
+async function runScraper(scraper: ICityScraper, fecha: string): Promise<RunOutcome> {
   const started_at = new Date().toISOString()
 
-  const result: ScraperResult = await scraper.scrape(fecha)
+  try {
+    const result: ScraperResult = await scraper.scrape(fecha)
 
-  // Stubs de ciudades sin fuente: no registrar error, solo skip silencioso
-  if (result.error instanceof ManualFallbackError) {
-    logger.info(`[${scraper.ciudad_slug}] Sin fuente oficial — skip (carga manual en Supabase)`)
+    // Stubs de ciudades sin fuente: no registrar error, solo skip silencioso
+    if (result.error instanceof ManualFallbackError) {
+      logger.info(`[${scraper.ciudad_slug}] Sin fuente oficial — skip (carga manual en Supabase)`)
+      return { ciudad_slug: scraper.ciudad_slug, outcome: "manual" }
+    }
+
+    // Insertar run en scraper_runs (antes del upsert para obtener el ID)
+    const upsertResult = result.status !== "failed"
+      ? await upsertTurnos(result, 0) // ID provisional; actualizar con run real abajo
+      : { rows_upserted: 0, error: result.error?.message }
+
+    await registrarScraperRun({
+      ciudad_slug: scraper.ciudad_slug,
+      scraper_key: scraper.scraper_key,
+      fecha_turno: fecha,
+      status: result.status,
+      rows_upserted: upsertResult.rows_upserted,
+      error_msg: result.error?.message,
+      source_url: result.source_url,
+      started_at,
+    })
+
+    return {
+      ciudad_slug: scraper.ciudad_slug,
+      outcome: result.status === "success" ? "success" : result.status === "no_data" ? "no_data" : "failed",
+      error_msg: result.error?.message,
+    }
+  } catch (err) {
+    // Cualquier excepción no capturada por el scraper individual se
+    // convierte en outcome "failed" en vez de tumbar Promise.allSettled,
+    // así la verificación post-corrida siempre conoce el estado real de
+    // cada ciudad pedida (necesario para no perder alertas).
+    const message = err instanceof Error ? err.message : String(err)
+    logger.error(`[${scraper.ciudad_slug}] Excepción no capturada:`, err)
+    return { ciudad_slug: scraper.ciudad_slug, outcome: "failed", error_msg: message }
+  }
+}
+
+// Confirma contra Supabase (no solo contra lo que reportó el scraper en
+// memoria) que cada ciudad automatizada haya quedado con datos de la fecha
+// de hoy, y avisa por Telegram si alguna quedó sin actualizar.
+async function verificarYAlertar(fecha: string, outcomes: RunOutcome[]): Promise<void> {
+  const ciudadesAutomatizadas = outcomes.filter((o) => o.outcome !== "manual")
+  if (ciudadesAutomatizadas.length === 0) return
+
+  const { data, error } = await supabase
+    .from("farmacias_turno")
+    .select("ciudad_slug")
+    .eq("fecha_turno", fecha)
+    .in("ciudad_slug", ciudadesAutomatizadas.map((o) => o.ciudad_slug))
+
+  if (error) {
+    logger.error("[verificacion] Error al consultar Supabase:", error.message)
+    await sendTelegramAlert(
+      `⚠️ <b>Farmacias de turno</b>\nNo se pudo verificar el estado post-corrida (${fecha}): ${error.message}`
+    )
     return
   }
 
-  // Insertar run en scraper_runs (antes del upsert para obtener el ID)
-  const upsertResult = result.status !== "failed"
-    ? await upsertTurnos(result, 0) // ID provisional; actualizar con run real abajo
-    : { rows_upserted: 0, error: result.error?.message }
+  const ciudadesConDatos = new Set((data ?? []).map((r) => r.ciudad_slug as string))
+  const faltantes = ciudadesAutomatizadas.filter((o) => !ciudadesConDatos.has(o.ciudad_slug))
 
-  await registrarScraperRun({
-    ciudad_slug: scraper.ciudad_slug,
-    scraper_key: scraper.scraper_key,
-    fecha_turno: fecha,
-    status: result.status,
-    rows_upserted: upsertResult.rows_upserted,
-    error_msg: result.error?.message,
-    source_url: result.source_url,
-    started_at,
-  })
+  if (faltantes.length === 0) {
+    logger.info(
+      `[verificacion] OK — las ${ciudadesAutomatizadas.length} ciudades automatizadas tienen datos de hoy (${fecha})`
+    )
+    return
+  }
+
+  const detalle = faltantes
+    .map((f) => `• <b>${f.ciudad_slug}</b>${f.error_msg ? ` — ${f.error_msg}` : " — sin datos de hoy"}`)
+    .join("\n")
+
+  logger.error(
+    `[verificacion] ${faltantes.length} ciudades sin datos de hoy: ${faltantes.map((f) => f.ciudad_slug).join(", ")}`
+  )
+
+  await sendTelegramAlert(`🚨 <b>Farmacias de turno — sin actualizar (${fecha})</b>\n\n${detalle}`)
 }
 
 async function main(): Promise<void> {
@@ -68,16 +134,22 @@ async function main(): Promise<void> {
     scrapers.map((s) => runScraper(s, fecha))
   )
 
-  let failures = 0
+  const outcomes: RunOutcome[] = []
+  let excepciones = 0
   for (const r of results) {
     if (r.status === "rejected") {
       logger.error(`Scraper terminó con excepción no capturada:`, r.reason)
-      failures++
+      excepciones++
+    } else {
+      outcomes.push(r.value)
     }
   }
 
-  if (failures > 0) {
-    logger.error(`${failures} scrapers fallaron`)
+  await verificarYAlertar(fecha, outcomes)
+
+  const fallaron = outcomes.filter((o) => o.outcome === "failed").length
+  if (fallaron > 0 || excepciones > 0) {
+    logger.error(`${fallaron + excepciones} scrapers fallaron`)
     process.exit(1)
   }
 

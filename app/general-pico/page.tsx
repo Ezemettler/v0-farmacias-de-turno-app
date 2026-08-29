@@ -1,4 +1,4 @@
-export const revalidate = 3600
+export const dynamic = "force-dynamic"
 
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
