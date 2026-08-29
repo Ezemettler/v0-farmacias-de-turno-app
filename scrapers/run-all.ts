@@ -25,6 +25,11 @@ const ALL_SCRAPERS: ICityScraper[] = [
   sanRafaelScraper,
 ]
 
+// Ciudades sin fuente automática, cargadas a mano vía el bot de Telegram
+// (telegram-bot/). Mantener en sync con CIUDADES_MANUALES en
+// telegram-bot/lib/types.ts.
+const CIUDADES_MANUALES = ["venado-tuerto", "san-pedro"]
+
 interface RunOutcome {
   ciudad_slug: string
   outcome: "manual" | "success" | "no_data" | "failed"
@@ -117,6 +122,54 @@ async function verificarYAlertar(fecha: string, outcomes: RunOutcome[]): Promise
   await sendTelegramAlert(`🚨 <b>Farmacias de turno — sin actualizar (${fecha})</b>\n\n${detalle}`)
 }
 
+// Ciudades sin scraper (cargadas a mano por Telegram) no tienen una corrida
+// diaria que las renueve — el cronograma cargado se agota solo. Avisa por
+// Telegram cuando el último día con datos es hoy o ya pasó, para que se
+// mande una foto nueva antes de que la web quede sin turno vigente.
+async function verificarCoberturaManual(fecha: string): Promise<void> {
+  const { data, error } = await supabase
+    .from("farmacias_turno")
+    .select("ciudad_slug, fecha_turno")
+    .in("ciudad_slug", CIUDADES_MANUALES)
+    .order("fecha_turno", { ascending: false })
+
+  if (error) {
+    logger.error("[cobertura-manual] Error al consultar Supabase:", error.message)
+    return
+  }
+
+  const ultimaFechaPorCiudad = new Map<string, string>()
+  for (const row of data ?? []) {
+    if (!ultimaFechaPorCiudad.has(row.ciudad_slug)) {
+      ultimaFechaPorCiudad.set(row.ciudad_slug, row.fecha_turno)
+    }
+  }
+
+  const porVencer = CIUDADES_MANUALES
+    .filter((ciudad) => ultimaFechaPorCiudad.has(ciudad)) // ignorar ciudades nunca cargadas (ej. San Pedro todavía sin usar)
+    .map((ciudad) => ({ ciudad, ultimaFecha: ultimaFechaPorCiudad.get(ciudad)! }))
+    .filter(({ ultimaFecha }) => ultimaFecha <= fecha)
+
+  if (porVencer.length === 0) {
+    logger.info("[cobertura-manual] OK — todas las ciudades manuales con cronograma tienen días por delante")
+    return
+  }
+
+  const detalle = porVencer
+    .map(({ ciudad, ultimaFecha }) =>
+      ultimaFecha === fecha
+        ? `• <b>${ciudad}</b> — hoy es el último día cargado`
+        : `• <b>${ciudad}</b> — sin cronograma desde el ${ultimaFecha}`
+    )
+    .join("\n")
+
+  logger.error(`[cobertura-manual] ${porVencer.length} ciudades manuales por quedarse sin cronograma`)
+
+  await sendTelegramAlert(
+    `📸 <b>Farmacias de turno — mandá una foto nueva</b>\n\n${detalle}`
+  )
+}
+
 async function main(): Promise<void> {
   const fecha = process.env.TARGET_FECHA || hoyArgentinaYYYYMMDD()
   const targetCiudad = process.env.TARGET_CIUDAD || ""
@@ -148,6 +201,7 @@ async function main(): Promise<void> {
   }
 
   await verificarYAlertar(fecha, outcomes)
+  await verificarCoberturaManual(fecha)
 
   const fallaron = outcomes.filter((o) => o.outcome === "failed").length
   if (fallaron > 0 || excepciones > 0) {

@@ -26,7 +26,11 @@ export async function upsertEntradasManuales(
       telefono: e.telefono ?? null,
       inicio_turno: horaLocalAISO(e.fecha_turno, e.inicio_turno) ?? null,
       fin_turno: horaLocalAISO(fechaFin, e.fin_turno) ?? null,
-      notas: resultado.notas,
+      // resultado.notas es metodología de extracción (ambigüedades, cómo se
+      // interpretó la imagen) — va en la respuesta de Telegram al operador,
+      // no en la web pública. La tarjeta de farmacia renderiza "notas" tal
+      // cual, así que cargarlo acá lo mostraría repetido en cada farmacia.
+      notas: null,
       fuente: "manual_telegram",
       es_override_manual: true,
     }
