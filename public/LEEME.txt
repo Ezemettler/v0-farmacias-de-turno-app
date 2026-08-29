@@ -1,0 +1,32 @@
+Logo Farmacias de Turno (opcion 2C)
+
+ARCHIVOS
+- icono-farmacias-de-turno.svg .......... icono para fondos claros (vectorial, escala infinita)
+- icono-farmacias-de-turno-fondo-oscuro.svg  icono para fondos oscuros
+- app-icon-farmacias-de-turno.svg ....... icono cuadrado (app / PWA / redes)
+- app-icon-512.png / 192.png ............ iconos PWA
+- apple-touch-icon-180.png ............... iOS
+- favicon-64.png / favicon-32.png ........ favicon
+- logo-farmacias-de-turno.png ............ logo completo, fondo transparente (@3x)
+- logo-farmacias-de-turno-fondo-oscuro.png  logo completo sobre fondo oscuro
+- logo-farmacias-de-turno-simple.png ..... logo sin bajada "Argentina - hoy"
+
+COLORES
+- Verde principal   #1B8A62
+- Verde "en vivo"   #2FD46E
+- Verde claro (oscuro) #A9E3C4
+- Texto             #16181A
+- Fondo oscuro      #1F2E27
+Tipografia: DM Sans (Google Fonts), 700 para el nombre, 500 para la bajada.
+
+EN EL HEAD
+<link rel="icon" href="/assets/icono-farmacias-de-turno.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon-180.png">
+
+AL LADO DEL TITULO (recomendado: icono SVG + texto HTML, queda nitido y accesible)
+<a href="/" style="display:flex;align-items:center;gap:14px;text-decoration:none">
+  <img src="/assets/icono-farmacias-de-turno.svg" width="44" height="44" alt="">
+  <span style="font-family:'DM Sans',Helvetica,sans-serif;font-size:26px;font-weight:700;
+               letter-spacing:-.025em;color:#16181A">Farmacias de Turno</span>
+</a>

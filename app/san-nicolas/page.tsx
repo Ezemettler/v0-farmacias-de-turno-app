@@ -3,7 +3,8 @@ export const dynamic = "force-dynamic"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { ChevronRight, MapPin, Clock, Info } from "lucide-react"
+import Image from "next/image"
+import { ChevronRight, Clock, Info } from "lucide-react"
 import { PharmacyCard } from "@/components/pharmacy-card"
 import type { Metadata } from "next"
 import { hoyArgentinaHumano } from "@/lib/fechaArgentina"
@@ -26,13 +27,17 @@ export default async function SanNicolasPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-semibold">Farmacias de turno</span>
-          </div>
+        <div className="container mx-auto px-4 py-3">
+          <Link href="/" className="inline-flex items-center w-fit">
+            <Image
+              src="/logo-farmacias-de-turno-simple.png"
+              alt="Farmacias de Turno"
+              width={1029}
+              height={252}
+              className="h-9 w-auto"
+              priority
+            />
+          </Link>
         </div>
       </header>
 
