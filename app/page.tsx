@@ -78,7 +78,7 @@ export default function HomePage() {
                 className="h-12 w-12 md:h-16 md:w-16 shrink-0"
                 priority
               />
-              <h1 className="text-3xl md:text-5xl font-bold text-balance leading-tight text-center">
+              <h1 className="text-3xl md:text-5xl font-bold text-balance leading-tight text-left">
                 Farmacias de turno hoy en Argentina
               </h1>
             </div>
