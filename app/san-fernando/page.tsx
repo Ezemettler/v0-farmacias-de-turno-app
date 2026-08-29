@@ -74,6 +74,7 @@ export default async function SanFernandoPage() {
                     pharmacy={{
                       name: x.nombre_farmacia,
                       address: x.direccion,
+                      city: "San Fernando, Buenos Aires",
                       phone: x.telefono ?? "",
                       hours: `Turno (24 hs): Desde ${formatARDateTime(x.inicio_turno)} → hasta ${formatARDateTime(x.fin_turno)}`,
                       notes: x.notas ?? undefined,
@@ -115,6 +116,7 @@ export default async function SanFernandoPage() {
                     pharmacy={{
                       name: x.nombre_farmacia,
                       address: x.direccion,
+                      city: "San Fernando, Buenos Aires",
                       phone: x.telefono ?? "",
                     }}
                     isOnDuty={false}

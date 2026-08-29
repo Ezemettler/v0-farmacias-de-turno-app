@@ -23,8 +23,12 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
     : ""
   const notes = hasValue(pharmacy.notes) ? String(pharmacy.notes).trim() : ""
 
-  // Como tu address ya incluye ciudad/provincia, alcanza con esto.
-  const mapsQuery = encodeURIComponent(`${pharmacy.address}, Argentina`)
+  // La dirección suele ser solo calle y número (ej. "Maipú y Lavalle"),
+  // sin ciudad — sin el nombre de la ciudad, Maps puede resolverla en
+  // cualquier provincia de Argentina. Se concatena acá para desambiguar.
+  const mapsQuery = encodeURIComponent(
+    pharmacy.city ? `${pharmacy.address}, ${pharmacy.city}, Argentina` : `${pharmacy.address}, Argentina`
+  )
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`
 
   const handleCall = () => {
