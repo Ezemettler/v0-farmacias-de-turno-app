@@ -54,11 +54,11 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-3">
           <Link href="/" className="inline-flex items-center w-fit">
             <Image
-              src="/logo-farmacias-de-turno-simple.png"
+              src="/icono-farmacias-de-turno.svg"
               alt="Farmacias de Turno"
-              width={1029}
-              height={252}
-              className="h-9 w-auto"
+              width={64}
+              height={64}
+              className="h-9 w-9"
               priority
             />
           </Link>
@@ -67,19 +67,21 @@ export default function HomePage() {
 
       <main className="flex-1 container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-3xl mx-auto space-y-8">
-          <div className="text-center space-y-4">
-            <Image
-              src="/logo-farmacias-de-turno.png"
-              alt="Farmacias de Turno — Argentina, hoy"
-              width={1188}
-              height={318}
-              className="h-16 md:h-20 w-auto mx-auto"
-              priority
-            />
-            <h1 className="text-4xl md:text-5xl font-bold text-balance leading-tight">
-              Farmacias de turno hoy en Argentina
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground text-pretty">
+          <div className="space-y-4">
+            <div className="flex items-center justify-center gap-3 md:gap-4">
+              <Image
+                src="/icono-farmacias-de-turno.svg"
+                alt=""
+                width={64}
+                height={64}
+                className="h-12 w-12 md:h-16 md:w-16 shrink-0"
+                priority
+              />
+              <h1 className="text-3xl md:text-5xl font-bold text-balance leading-tight text-left">
+                Farmacias de turno hoy en Argentina
+              </h1>
+            </div>
+            <p className="text-lg md:text-xl text-muted-foreground text-pretty text-center">
               Encontrá farmacias abiertas hoy, por ciudad, con información clara y actualizada.
             </p>
           </div>

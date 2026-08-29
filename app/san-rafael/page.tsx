@@ -30,11 +30,11 @@ export default async function SanRafaelPage() {
         <div className="container mx-auto px-4 py-3">
           <Link href="/" className="inline-flex items-center w-fit">
             <Image
-              src="/logo-farmacias-de-turno-simple.png"
+              src="/icono-farmacias-de-turno.svg"
               alt="Farmacias de Turno"
-              width={1029}
-              height={252}
-              className="h-9 w-auto"
+              width={64}
+              height={64}
+              className="h-9 w-9"
               priority
             />
           </Link>
