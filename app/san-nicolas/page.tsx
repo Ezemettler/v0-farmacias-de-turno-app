@@ -28,15 +28,16 @@ export default async function SanNicolasPage() {
     <div className="min-h-screen flex flex-col">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
-          <Link href="/" className="inline-flex items-center w-fit">
+          <Link href="/" className="inline-flex items-center gap-2 w-fit">
             <Image
-              src="/icono-farmacias-de-turno.svg"
-              alt="Farmacias de Turno"
-              width={64}
-              height={64}
-              className="h-9 w-9"
+              src="/app-icon-farmacias-de-turno.svg"
+              alt=""
+              width={512}
+              height={512}
+              className="h-8 w-8"
               priority
             />
+            <span className="text-xl font-semibold">Farmacias de Turno</span>
           </Link>
         </div>
       </header>

@@ -52,15 +52,16 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
-          <Link href="/" className="inline-flex items-center w-fit">
+          <Link href="/" className="inline-flex items-center gap-2 w-fit">
             <Image
-              src="/icono-farmacias-de-turno.svg"
-              alt="Farmacias de Turno"
-              width={64}
-              height={64}
-              className="h-9 w-9"
+              src="/app-icon-farmacias-de-turno.svg"
+              alt=""
+              width={512}
+              height={512}
+              className="h-8 w-8"
               priority
             />
+            <span className="text-xl font-semibold">Farmacias de Turno</span>
           </Link>
         </div>
       </header>
@@ -70,14 +71,14 @@ export default function HomePage() {
           <div className="space-y-4">
             <div className="flex items-center justify-center gap-3 md:gap-4">
               <Image
-                src="/icono-farmacias-de-turno.svg"
+                src="/app-icon-farmacias-de-turno.svg"
                 alt=""
-                width={64}
-                height={64}
+                width={512}
+                height={512}
                 className="h-12 w-12 md:h-16 md:w-16 shrink-0"
                 priority
               />
-              <h1 className="text-3xl md:text-5xl font-bold text-balance leading-tight text-left">
+              <h1 className="text-3xl md:text-5xl font-bold text-balance leading-tight text-center">
                 Farmacias de turno hoy en Argentina
               </h1>
             </div>
