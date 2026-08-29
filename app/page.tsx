@@ -69,16 +69,16 @@ export default function HomePage() {
       <main className="flex-1 container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-3xl mx-auto space-y-8">
           <div className="space-y-4">
-            <div className="flex items-center justify-center gap-3 md:gap-4">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4">
               <Image
                 src="/app-icon-farmacias-de-turno.svg"
                 alt=""
                 width={512}
                 height={512}
-                className="h-12 w-12 md:h-16 md:w-16 shrink-0"
+                className="h-14 w-14 md:h-16 md:w-16 shrink-0"
                 priority
               />
-              <h1 className="text-3xl md:text-5xl font-bold text-balance leading-tight text-left">
+              <h1 className="text-3xl md:text-5xl font-bold text-balance leading-tight text-center md:text-left md:max-w-lg">
                 Farmacias de turno hoy en Argentina
               </h1>
             </div>
