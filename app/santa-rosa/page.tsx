@@ -53,27 +53,24 @@ export default async function SantaRosaPage() {
       </div>
 
       <main className="flex-1 container mx-auto px-4 pb-12">
-        <div className="max-w-5xl mx-auto space-y-8">
-          <div className="space-y-3">
+        <div className="max-w-5xl mx-auto space-y-6">
+          <div className="space-y-2">
             <h1 className="text-3xl md:text-4xl font-bold text-balance leading-tight">
               Farmacias de turno hoy en Santa Rosa
             </h1>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-base py-1.5 px-3">
-                <Clock className="w-4 h-4 mr-1.5" />
-                {currentDate.dateString}
-              </Badge>
-            </div>
-            <p className="text-lg text-muted-foreground">Estas son las farmacias que están de turno hoy.</p>
+            <Badge variant="secondary" className="text-base py-1.5 px-3 w-fit">
+              <Clock className="w-4 h-4 mr-1.5" />
+              {currentDate.dateString}
+            </Badge>
           </div>
 
           {pharmaciesOnDutyNow.length > 0 ? (
-            <section className="space-y-4">
+            <section className="space-y-3">
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-bold">Farmacias de turno hoy</h2>
+                <h2 className="text-lg font-semibold">Disponibles ahora</h2>
                 <Badge className="bg-accent text-accent-foreground">{pharmaciesOnDutyNow.length}</Badge>
               </div>
-              <div className="grid gap-4">
+              <div className="grid gap-3">
                 {pharmaciesOnDutyNow.map((x, index) => (
                   <PharmacyCard
                     key={index}
