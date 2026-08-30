@@ -77,7 +77,13 @@ export default async function PlatanosPage() {
                     pharmacy={{
                       name: x.nombre_farmacia,
                       address: x.direccion,
-                      city: "Plátanos, Buenos Aires",
+                      // "Plátanos" como localidad no lo geocodifica bien Google
+                      // Maps para estas direcciones — confirmado a mano que Google
+                      // las reconoce como parte de "Guillermo Enrique Hudson", la
+                      // localidad vecina (mismo partido de Berazategui). Se usa
+                      // esa para el link de Maps aunque la página siga llamándose
+                      // Plátanos (así la etiqueta la fuente).
+                      city: "Guillermo Enrique Hudson, Buenos Aires",
                       phone: x.telefono ?? "",
                       hours: `Turno (24 hs): Desde ${formatARDateTime(x.inicio_turno)} → hasta ${formatARDateTime(x.fin_turno)}`,
                       notes: x.notas ?? undefined,
@@ -119,7 +125,13 @@ export default async function PlatanosPage() {
                     pharmacy={{
                       name: x.nombre_farmacia,
                       address: x.direccion,
-                      city: "Plátanos, Buenos Aires",
+                      // "Plátanos" como localidad no lo geocodifica bien Google
+                      // Maps para estas direcciones — confirmado a mano que Google
+                      // las reconoce como parte de "Guillermo Enrique Hudson", la
+                      // localidad vecina (mismo partido de Berazategui). Se usa
+                      // esa para el link de Maps aunque la página siga llamándose
+                      // Plátanos (así la etiqueta la fuente).
+                      city: "Guillermo Enrique Hudson, Buenos Aires",
                       phone: x.telefono ?? "",
                     }}
                     isOnDuty={false}

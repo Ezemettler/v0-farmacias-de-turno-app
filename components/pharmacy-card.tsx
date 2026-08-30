@@ -23,11 +23,20 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
     : ""
   const notes = hasValue(pharmacy.notes) ? String(pharmacy.notes).trim() : ""
 
+  // Algunas fuentes (ej. Berazategui) agregan el barrio dentro de la
+  // dirección con el formato "B. NombreBarrio" (ej. "128 y 55 B.
+  // Marítimo"). Sumado a la ciudad que ya agregamos abajo, esto
+  // sobre-especifica la búsqueda y hace que el geocoder de Google no
+  // encuentre el punto (confirmado a mano: sin "B. Marítimo" sí lo
+  // encuentra). Se saca solo para el link de Maps — la dirección visible
+  // en la tarjeta queda intacta, es información útil para el usuario.
+  const direccionParaMaps = pharmacy.address.replace(/\s+B\.\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]*$/, "")
+
   // La dirección suele ser solo calle y número (ej. "Maipú y Lavalle"),
   // sin ciudad — sin el nombre de la ciudad, Maps puede resolverla en
   // cualquier provincia de Argentina. Se concatena acá para desambiguar.
   const mapsQuery = encodeURIComponent(
-    pharmacy.city ? `${pharmacy.address}, ${pharmacy.city}, Argentina` : `${pharmacy.address}, Argentina`
+    pharmacy.city ? `${direccionParaMaps}, ${pharmacy.city}, Argentina` : `${direccionParaMaps}, Argentina`
   )
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`
 

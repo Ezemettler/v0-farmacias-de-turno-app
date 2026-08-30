@@ -77,7 +77,10 @@ export default async function HudsonPage() {
                     pharmacy={{
                       name: x.nombre_farmacia,
                       address: x.direccion,
-                      city: "Hudson, Buenos Aires",
+                      // "Hudson" a secas a veces no lo encuentra Google Maps si la
+                      // dirección trae un barrio pegado (ej. "B. Marítimo") — el
+                      // nombre oficial completo geocodifica bien, confirmado a mano.
+                      city: "Guillermo Enrique Hudson, Buenos Aires",
                       phone: x.telefono ?? "",
                       hours: `Turno (24 hs): Desde ${formatARDateTime(x.inicio_turno)} → hasta ${formatARDateTime(x.fin_turno)}`,
                       notes: x.notas ?? undefined,
@@ -119,7 +122,10 @@ export default async function HudsonPage() {
                     pharmacy={{
                       name: x.nombre_farmacia,
                       address: x.direccion,
-                      city: "Hudson, Buenos Aires",
+                      // "Hudson" a secas a veces no lo encuentra Google Maps si la
+                      // dirección trae un barrio pegado (ej. "B. Marítimo") — el
+                      // nombre oficial completo geocodifica bien, confirmado a mano.
+                      city: "Guillermo Enrique Hudson, Buenos Aires",
                       phone: x.telefono ?? "",
                     }}
                     isOnDuty={false}
