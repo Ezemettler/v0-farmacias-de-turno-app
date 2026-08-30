@@ -6,6 +6,11 @@ export abstract class BaseScraper implements ICityScraper {
   abstract readonly ciudad_slug: string
   abstract readonly scraper_key: string
   protected abstract readonly url: string
+  // La mayoría de las fuentes sirven UTF-8. Algunas (ej. El Litoral)
+  // declaran ISO-8859-1 en el Content-Type — .text() del fetch nativo
+  // siempre decodifica como UTF-8 sin importar el charset declarado, así
+  // que hay que decodificar a mano en esos casos.
+  protected readonly encoding: string = "utf-8"
 
   protected abstract scrapeHtml(html: string, fecha: string): Promise<ScraperResult>
 
@@ -31,7 +36,12 @@ export abstract class BaseScraper implements ICityScraper {
         throw new Error(`HTTP ${res.status} ${res.statusText}`)
       }
 
-      html = await res.text()
+      if (this.encoding.toLowerCase() === "utf-8") {
+        html = await res.text()
+      } else {
+        const buffer = await res.arrayBuffer()
+        html = new TextDecoder(this.encoding).decode(buffer)
+      }
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error))
       logger.error(`[${this.ciudad_slug}] Fetch fallido: ${err.message}`)

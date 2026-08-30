@@ -13,6 +13,10 @@ import { venadoTuertoScraper } from "./scrapers/venado-tuerto/index.js"
 import { sanRafaelScraper } from "./scrapers/san-rafael/index.js"
 import { sanPedroScraper } from "./scrapers/san-pedro/index.js"
 import { sanFernandoScraper } from "./scrapers/san-fernando/index.js"
+import { laPlataScraper, losHornosScraper } from "./scrapers/la-plata/index.js"
+import { berazateguiScraper, platanosScraper, hudsonScraper } from "./scrapers/berazategui/index.js"
+import { santaFeScraper, santoTomeScraper } from "./scrapers/santa-fe/index.js"
+import { rioGrandeScraper, ushuaiaScraper } from "./scrapers/rio-grande/index.js"
 
 const SCRAPERS: Record<string, ICityScraper> = {
   "san-nicolas": sanNicolasScraper,
@@ -22,6 +26,15 @@ const SCRAPERS: Record<string, ICityScraper> = {
   "san-fernando": sanFernandoScraper,
   "venado-tuerto": venadoTuertoScraper,
   "san-rafael": sanRafaelScraper,
+  "la-plata": laPlataScraper,
+  "los-hornos": losHornosScraper,
+  "berazategui": berazateguiScraper,
+  "platanos": platanosScraper,
+  "hudson": hudsonScraper,
+  "santa-fe": santaFeScraper,
+  "santo-tome": santoTomeScraper,
+  "rio-grande": rioGrandeScraper,
+  "ushuaia": ushuaiaScraper,
 }
 
 async function main(): Promise<void> {

@@ -31,7 +31,16 @@ export async function GET() {
     { loc: `${baseUrl}/santa-rosa`, lastmod },
     { loc: `${baseUrl}/general-pico`, lastmod },
     { loc: `${baseUrl}/san-rafael`, lastmod },
-    { loc: `${baseUrl}/venado-tuerto`, lastmod }
+    { loc: `${baseUrl}/venado-tuerto`, lastmod },
+    { loc: `${baseUrl}/la-plata`, lastmod },
+    { loc: `${baseUrl}/los-hornos`, lastmod },
+    { loc: `${baseUrl}/berazategui`, lastmod },
+    { loc: `${baseUrl}/platanos`, lastmod },
+    { loc: `${baseUrl}/hudson`, lastmod },
+    { loc: `${baseUrl}/santa-fe`, lastmod },
+    { loc: `${baseUrl}/santo-tome`, lastmod },
+    { loc: `${baseUrl}/rio-grande`, lastmod },
+    { loc: `${baseUrl}/ushuaia`, lastmod }
   ];
 
   const xml = buildSitemap(urls);

@@ -46,6 +46,51 @@ export default function HomePage() {
       slug: "venado-tuerto",
       province: "Santa Fe",
     },
+    {
+      name: "La Plata",
+      slug: "la-plata",
+      province: "Buenos Aires",
+    },
+    {
+      name: "Los Hornos",
+      slug: "los-hornos",
+      province: "Buenos Aires",
+    },
+    {
+      name: "Berazategui",
+      slug: "berazategui",
+      province: "Buenos Aires",
+    },
+    {
+      name: "Plátanos",
+      slug: "platanos",
+      province: "Buenos Aires",
+    },
+    {
+      name: "Hudson",
+      slug: "hudson",
+      province: "Buenos Aires",
+    },
+    {
+      name: "Santa Fe",
+      slug: "santa-fe",
+      province: "Santa Fe",
+    },
+    {
+      name: "Santo Tomé",
+      slug: "santo-tome",
+      province: "Santa Fe",
+    },
+    {
+      name: "Río Grande",
+      slug: "rio-grande",
+      province: "Tierra del Fuego",
+    },
+    {
+      name: "Ushuaia",
+      slug: "ushuaia",
+      province: "Tierra del Fuego",
+    },
   ]
 
   return (
