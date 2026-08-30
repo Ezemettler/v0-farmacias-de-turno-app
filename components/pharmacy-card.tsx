@@ -42,6 +42,26 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
     "C. $1 & C. $2"
   )
 
+  // "Av. Kirchner (ex Mitre)" (Berazategui/Hudson): el paréntesis con el
+  // nombre viejo es ruido para el geocoder, y el nombre corto "Kirchner"
+  // no siempre alcanza — el mapa la tiene cargada con el nombre oficial
+  // completo "Avenida Presidente Néstor Kirchner".
+  direccionParaMaps = direccionParaMaps.replace(
+    /Av\.\s*Kirchner\s*\(ex\s+Mitre\)/i,
+    "Avenida Presidente Néstor Kirchner"
+  )
+
+  // Direcciones tipo "Calle e/49A y 50" (entre calle A y calle B): una
+  // intersección de tres calles en la búsqueda confunde al geocoder. Se
+  // simplifica al cruce con la primera transversal, mismo formato "Calle
+  // & Calle" que ya funciona para intersecciones numeradas. NOTA: a
+  // diferencia del caso de arriba, esto todavía no está confirmado a
+  // mano en Google Maps — es la mejor hipótesis con la info disponible.
+  direccionParaMaps = direccionParaMaps.replace(
+    /\s+e\/(\d+[A-Za-z]?)\s+y\s+\d+[A-Za-z]?$/,
+    " esq. C. $1"
+  )
+
   // La dirección suele ser solo calle y número (ej. "Maipú y Lavalle"),
   // sin ciudad — sin el nombre de la ciudad, Maps puede resolverla en
   // cualquier provincia de Argentina. Se concatena acá para desambiguar.
