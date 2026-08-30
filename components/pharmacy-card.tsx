@@ -30,7 +30,17 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
   // encuentre el punto (confirmado a mano: sin "B. Marítimo" sí lo
   // encuentra). Se saca solo para el link de Maps — la dirección visible
   // en la tarjeta queda intacta, es información útil para el usuario.
-  const direccionParaMaps = pharmacy.address.replace(/\s+B\.\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]*$/, "")
+  let direccionParaMaps = pharmacy.address.replace(/\s+B\.\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]*$/, "")
+
+  // Direcciones tipo "128 y 55" (solo dos números, sistema de calles
+  // numeradas de La Plata/Berazategui) tampoco geocodifican bien así
+  // nomás — confirmado a mano que "C. 128 & C. 55" sí funciona, "128 y
+  // 55" no. Google necesita la palabra "Calle" (abreviada) para saber
+  // que son nombres de calle y no otra cosa.
+  direccionParaMaps = direccionParaMaps.replace(
+    /^(\d+[A-Za-z]?)\s+y\s+(\d+[A-Za-z]?)$/,
+    "C. $1 & C. $2"
+  )
 
   // La dirección suele ser solo calle y número (ej. "Maipú y Lavalle"),
   // sin ciudad — sin el nombre de la ciudad, Maps puede resolverla en
