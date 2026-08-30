@@ -23,6 +23,17 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
     : ""
   const notes = hasValue(pharmacy.notes) ? String(pharmacy.notes).trim() : ""
 
+  // Casos puntuales donde la dirección de la fuente (formato "entre
+  // calle A y calle B", sin altura) no alcanza para que Google la
+  // geocodifique y no hay una regla general que lo resuelva — la altura
+  // real no se puede derivar de "e/49A y 50" por fórmula. Se confirmó a
+  // mano la dirección real que sí encuentra el punto correcto.
+  const DIRECCION_MAPS_OVERRIDES: Record<string, string> = {
+    "Av. Kirchner (ex Mitre) e/49A y 50":
+      "Av Mitre 4986, B1861 Guillermo Enrique Hudson, Provincia de Buenos Aires",
+  }
+  const direccionOverride = DIRECCION_MAPS_OVERRIDES[pharmacy.address.trim()]
+
   // Algunas fuentes (ej. Berazategui) agregan el barrio dentro de la
   // dirección con el formato "B. NombreBarrio" (ej. "128 y 55 B.
   // Marítimo"). Sumado a la ciudad que ya agregamos abajo, esto
@@ -30,43 +41,47 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
   // encuentre el punto (confirmado a mano: sin "B. Marítimo" sí lo
   // encuentra). Se saca solo para el link de Maps — la dirección visible
   // en la tarjeta queda intacta, es información útil para el usuario.
-  let direccionParaMaps = pharmacy.address.replace(/\s+B\.\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]*$/, "")
+  let direccionParaMaps = direccionOverride ?? pharmacy.address.replace(/\s+B\.\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]*$/, "")
 
-  // Direcciones tipo "128 y 55" (solo dos números, sistema de calles
-  // numeradas de La Plata/Berazategui) tampoco geocodifican bien así
-  // nomás — confirmado a mano que "C. 128 & C. 55" sí funciona, "128 y
-  // 55" no. Google necesita la palabra "Calle" (abreviada) para saber
-  // que son nombres de calle y no otra cosa.
-  direccionParaMaps = direccionParaMaps.replace(
-    /^(\d+[A-Za-z]?)\s+y\s+(\d+[A-Za-z]?)$/,
-    "C. $1 & C. $2"
-  )
-
-  // "Av. Kirchner (ex Mitre)" (Berazategui/Hudson): el paréntesis con el
-  // nombre viejo es ruido para el geocoder, y el nombre corto "Kirchner"
-  // no siempre alcanza — el mapa la tiene cargada con el nombre oficial
-  // completo "Avenida Presidente Néstor Kirchner".
-  direccionParaMaps = direccionParaMaps.replace(
-    /Av\.\s*Kirchner\s*\(ex\s+Mitre\)/i,
-    "Avenida Presidente Néstor Kirchner"
-  )
-
-  // Direcciones tipo "Calle e/49A y 50" (entre calle A y calle B): una
-  // intersección de tres calles en la búsqueda confunde al geocoder. Se
-  // simplifica al cruce con la primera transversal, mismo formato "Calle
-  // & Calle" que ya funciona para intersecciones numeradas. NOTA: a
-  // diferencia del caso de arriba, esto todavía no está confirmado a
-  // mano en Google Maps — es la mejor hipótesis con la info disponible.
-  direccionParaMaps = direccionParaMaps.replace(
-    /\s+e\/(\d+[A-Za-z]?)\s+y\s+\d+[A-Za-z]?$/,
-    " esq. C. $1"
-  )
+  if (!direccionOverride) {
+    // Sistema de calles numeradas (La Plata/Berazategui/Los Hornos): la
+    // fuente suele agregar la esquina o las entrecalles ("esq 8", "e/154
+    // y 155") además de la altura ("Nro2971", "nro 654"). Confirmado a
+    // mano: cuando la dirección tiene calle + altura, Google la ubica
+    // bien solo con esas dos cosas — la esquina/entrecalles de más hace
+    // que no encuentre el punto, así que se descartan para el link.
+    const alturaMatch = direccionParaMaps.match(/\bn(?:ro\.?|[°º]\.?)\s*(\d+)/i)
+    if (alturaMatch) {
+      let calle = direccionParaMaps.slice(0, alturaMatch.index).trim()
+      calle = calle.replace(/\s+esq(?:uina)?\.?\s+.*$/i, "")
+      calle = calle.replace(/^(?:Av\.?|Avenida)\s+(\d+[A-Za-z]?)$/i, "C. $1")
+      calle = calle.replace(/^(\d+[A-Za-z]?)$/, "C. $1")
+      direccionParaMaps = `${calle} ${alturaMatch[1]}`
+    } else {
+      // Sin altura, es una esquina pura (ej. "128 y 55", "Cno. Gral.
+      // Belgrano y 25") — confirmado a mano que agregar "Calle" a la
+      // transversal numérica y "&" en vez de "y" es lo que hace que
+      // Google la encuentre.
+      direccionParaMaps = direccionParaMaps.replace(
+        /^(.+?)\s+y\s+(\d+[A-Za-z]?)$/,
+        (_match, calle1: string, calle2: string) => {
+          const calle1Norm = /^\d+[A-Za-z]?$/.test(calle1.trim()) ? `C. ${calle1.trim()}` : calle1.trim()
+          return `${calle1Norm} & C. ${calle2}`
+        }
+      )
+    }
+  }
 
   // La dirección suele ser solo calle y número (ej. "Maipú y Lavalle"),
   // sin ciudad — sin el nombre de la ciudad, Maps puede resolverla en
   // cualquier provincia de Argentina. Se concatena acá para desambiguar.
+  // Si hay override, ya viene con localidad y provincia incluidas.
   const mapsQuery = encodeURIComponent(
-    pharmacy.city ? `${direccionParaMaps}, ${pharmacy.city}, Argentina` : `${direccionParaMaps}, Argentina`
+    direccionOverride
+      ? `${direccionParaMaps}, Argentina`
+      : pharmacy.city
+        ? `${direccionParaMaps}, ${pharmacy.city}, Argentina`
+        : `${direccionParaMaps}, Argentina`
   )
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`
 
