@@ -3,16 +3,38 @@ import { enviarMensaje, descargarArchivo } from "./lib/telegram-api.js"
 import { extraerFarmacias } from "./lib/extract.js"
 import { upsertEntradasManuales } from "./lib/upsert-manual.js"
 import { hoyArgentinaYYYYMMDD } from "./lib/fecha.js"
-import { CIUDADES_MANUALES, esCiudadManualValida } from "./lib/types.js"
+import { CIUDADES_MANUALES, resolverCiudadManual, type CiudadManual } from "./lib/types.js"
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8080
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET
 
 const AYUDA = `Mandame una foto o un PDF con el cronograma de farmacias de turno.
 
-Poné como <b>descripción/caption</b> el slug de la ciudad (ej. <code>venado-tuerto</code>). Si no ponés nada, asumo <code>venado-tuerto</code>.
+Decime de qué ciudad es — como <b>descripción/caption</b> de la foto, o en un mensaje aparte (antes o después de mandarla, como te resulte más cómodo). No hace falta el slug exacto: "San Nicolás" también funciona.
 
 Ciudades habilitadas: ${CIUDADES_MANUALES.join(", ")}`
+
+interface ArchivoDescargado {
+  base64: string
+  mediaType: string
+}
+
+interface PendingEntry<T> {
+  valor: T
+  timestamp: number
+}
+
+// Cuánto tiempo queda "recordada" una foto sin ciudad o una ciudad sin foto,
+// esperando el mensaje que la complete. Estado en memoria: alcanza para uso
+// personal de bajo volumen, no hace falta persistirlo.
+const TTL_MS = 15 * 60 * 1000
+
+const archivosPendientes = new Map<number, PendingEntry<ArchivoDescargado>>()
+const ciudadesPendientes = new Map<number, PendingEntry<CiudadManual>>()
+
+function vigente<T>(entry: PendingEntry<T> | undefined): entry is PendingEntry<T> {
+  return entry !== undefined && Date.now() - entry.timestamp < TTL_MS
+}
 
 interface TelegramPhotoSize {
   file_id: string
@@ -43,36 +65,8 @@ async function readBody(req: IncomingMessage): Promise<string> {
   return Buffer.concat(chunks).toString("utf-8")
 }
 
-async function manejarMensaje(message: TelegramMessage): Promise<void> {
-  const chatId = message.chat.id
-
-  const fileRef = message.photo
-    ? message.photo[message.photo.length - 1] // mayor resolución
-    : message.document && (message.document.mime_type?.startsWith("image/") || message.document.mime_type === "application/pdf")
-      ? message.document
-      : null
-
-  if (!fileRef) {
-    await enviarMensaje(chatId, AYUDA)
-    return
-  }
-
-  const caption = message.caption?.trim().toLowerCase() || "venado-tuerto"
-  if (!esCiudadManualValida(caption)) {
-    await enviarMensaje(
-      chatId,
-      `No reconozco la ciudad "${caption}". Ciudades habilitadas: ${CIUDADES_MANUALES.join(", ")}.`
-    )
-    return
-  }
-
+async function procesarArchivo(chatId: number, ciudad: CiudadManual, archivo: ArchivoDescargado): Promise<void> {
   await enviarMensaje(chatId, "📥 Recibido, procesando...")
-
-  const archivo = await descargarArchivo(fileRef.file_id)
-  if (!archivo) {
-    await enviarMensaje(chatId, "⚠️ No pude descargar el archivo desde Telegram. Probá de nuevo.")
-    return
-  }
 
   const resultado = await extraerFarmacias({
     base64: archivo.base64,
@@ -88,7 +82,7 @@ async function manejarMensaje(message: TelegramMessage): Promise<void> {
     return
   }
 
-  const { filas_guardadas, error } = await upsertEntradasManuales(caption, resultado)
+  const { filas_guardadas, error } = await upsertEntradasManuales(ciudad, resultado)
 
   if (error) {
     await enviarMensaje(chatId, `❌ Se leyeron los datos pero falló la carga a Supabase: ${error}`)
@@ -102,10 +96,80 @@ async function manejarMensaje(message: TelegramMessage): Promise<void> {
 
   await enviarMensaje(
     chatId,
-    `✅ Cargadas ${filas_guardadas} farmacias en <b>${caption}</b> (${fechas.join(", ")}) — confianza ${resultado.confianza}\n\n${detalle}${
+    `✅ Cargadas ${filas_guardadas} farmacias en <b>${ciudad}</b> (${fechas.join(", ")}) — confianza ${resultado.confianza}\n\n${detalle}${
       resultado.notas ? `\n\n📝 ${resultado.notas}` : ""
     }`
   )
+}
+
+async function manejarMensaje(message: TelegramMessage): Promise<void> {
+  const chatId = message.chat.id
+
+  const fileRef = message.photo
+    ? message.photo[message.photo.length - 1] // mayor resolución
+    : message.document && (message.document.mime_type?.startsWith("image/") || message.document.mime_type === "application/pdf")
+      ? message.document
+      : null
+
+  if (fileRef) {
+    const captionTexto = message.caption?.trim()
+    const ciudadDelCaption = captionTexto ? resolverCiudadManual(captionTexto) : null
+
+    if (captionTexto && !ciudadDelCaption) {
+      await enviarMensaje(
+        chatId,
+        `No reconozco la ciudad "${captionTexto}". Ciudades habilitadas: ${CIUDADES_MANUALES.join(", ")}.`
+      )
+      return
+    }
+
+    const archivo = await descargarArchivo(fileRef.file_id)
+    if (!archivo) {
+      await enviarMensaje(chatId, "⚠️ No pude descargar el archivo desde Telegram. Probá de nuevo.")
+      return
+    }
+
+    const ciudadPendiente = ciudadesPendientes.get(chatId)
+    const ciudad = ciudadDelCaption ?? (vigente(ciudadPendiente) ? ciudadPendiente.valor : null)
+
+    if (!ciudad) {
+      // No sabemos la ciudad todavía — guardamos el archivo ya descargado
+      // (el file_id de Telegram puede volverse inválido con el tiempo) y
+      // preguntamos, en vez de asumir una ciudad por default.
+      archivosPendientes.set(chatId, { valor: archivo, timestamp: Date.now() })
+      await enviarMensaje(
+        chatId,
+        `¿De qué ciudad es esta foto/PDF? Respondé con el nombre. Ciudades habilitadas: ${CIUDADES_MANUALES.join(", ")}.`
+      )
+      return
+    }
+
+    ciudadesPendientes.delete(chatId)
+    archivosPendientes.delete(chatId)
+    await procesarArchivo(chatId, ciudad, archivo)
+    return
+  }
+
+  // Sin archivo: puede ser el nombre de una ciudad, ya sea contestando la
+  // pregunta de arriba o adelantándose antes de mandar la foto/PDF.
+  const texto = message.text?.trim()
+  const ciudadDelTexto = texto ? resolverCiudadManual(texto) : null
+
+  if (ciudadDelTexto) {
+    const archivoPendiente = archivosPendientes.get(chatId)
+    if (vigente(archivoPendiente)) {
+      archivosPendientes.delete(chatId)
+      ciudadesPendientes.delete(chatId)
+      await procesarArchivo(chatId, ciudadDelTexto, archivoPendiente.valor)
+      return
+    }
+
+    ciudadesPendientes.set(chatId, { valor: ciudadDelTexto, timestamp: Date.now() })
+    await enviarMensaje(chatId, `Ok, la próxima foto o PDF que mandes la cargo en <b>${ciudadDelTexto}</b>.`)
+    return
+  }
+
+  await enviarMensaje(chatId, AYUDA)
 }
 
 const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {

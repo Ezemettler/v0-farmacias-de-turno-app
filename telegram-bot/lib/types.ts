@@ -1,10 +1,28 @@
 // Ciudades habilitadas para el flujo de carga manual vía Telegram.
-// Extender esta lista cuando se sume una ciudad nueva (ej. San Pedro).
-export const CIUDADES_MANUALES = ["venado-tuerto", "san-pedro"] as const
+// Extender esta lista cuando se sume una ciudad nueva.
+export const CIUDADES_MANUALES = ["venado-tuerto", "san-pedro", "san-nicolas"] as const
 export type CiudadManual = (typeof CIUDADES_MANUALES)[number]
 
-export function esCiudadManualValida(valor: string): valor is CiudadManual {
-  return (CIUDADES_MANUALES as readonly string[]).includes(valor)
+// Normaliza texto libre a formato slug (minúsculas, sin acentos, espacios ->
+// guiones) para que el operador pueda escribir "San Nicolás", "san nicolas"
+// o "san-nicolas" indistintamente y matchee igual.
+function normalizarTexto(valor: string): string {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+}
+
+// Intenta resolver texto libre (caption o mensaje de texto) a una ciudad
+// habilitada. Devuelve null si no matchea ninguna.
+export function resolverCiudadManual(valor: string): CiudadManual | null {
+  const normalizado = normalizarTexto(valor)
+  return (CIUDADES_MANUALES as readonly string[]).includes(normalizado)
+    ? (normalizado as CiudadManual)
+    : null
 }
 
 export interface EntradaExtraida {
