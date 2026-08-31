@@ -41,7 +41,7 @@ const ALL_SCRAPERS: ICityScraper[] = [
 // Ciudades sin fuente automática, cargadas a mano vía el bot de Telegram
 // (telegram-bot/). Mantener en sync con CIUDADES_MANUALES en
 // telegram-bot/lib/types.ts.
-const CIUDADES_MANUALES = ["venado-tuerto", "san-pedro"]
+const CIUDADES_MANUALES = ["venado-tuerto", "san-pedro", "san-nicolas"]
 
 interface RunOutcome {
   ciudad_slug: string
