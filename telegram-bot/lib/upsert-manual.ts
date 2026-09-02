@@ -2,10 +2,54 @@ import { supabase } from "./supabase-client.js"
 import { horaLocalAISO, siguienteDia } from "./fecha.js"
 import type { CiudadManual } from "./types.js"
 import type { ResultadoExtraccion } from "./types.js"
+import { ROSTER_SAN_NICOLAS, type LetraTurno } from "./turnos-san-nicolas.js"
 
 export interface UpsertManualResult {
   filas_guardadas: number
   error?: string
+}
+
+// A diferencia de upsertEntradasManuales (que puede traer varias fechas de
+// una foto de cronograma), acá siempre es UN solo día con UN padrón fijo —
+// así que se reemplaza lo que haya para esa fecha en vez de sumarlo, para
+// no repetir el problema de datos mezclados que ya pasó una vez.
+export async function cargarTurnoSanNicolas(
+  letra: LetraTurno,
+  fecha_turno: string
+): Promise<UpsertManualResult> {
+  const { error: errorDelete } = await supabase
+    .from("farmacias_turno")
+    .delete()
+    .eq("ciudad_slug", "san-nicolas")
+    .eq("fecha_turno", fecha_turno)
+
+  if (errorDelete) {
+    return { filas_guardadas: 0, error: errorDelete.message }
+  }
+
+  const inicio_turno = horaLocalAISO(fecha_turno, "08:30") ?? null
+  const fin_turno = horaLocalAISO(siguienteDia(fecha_turno), "08:30") ?? null
+
+  const rows = ROSTER_SAN_NICOLAS[letra].map((f) => ({
+    ciudad_slug: "san-nicolas",
+    fecha_turno,
+    nombre_farmacia: f.nombre,
+    direccion: f.direccion,
+    telefono: null,
+    inicio_turno,
+    fin_turno,
+    notas: null,
+    fuente: "manual_telegram_turno",
+    es_override_manual: true,
+  }))
+
+  const { error } = await supabase.from("farmacias_turno").insert(rows)
+
+  if (error) {
+    return { filas_guardadas: 0, error: error.message }
+  }
+
+  return { filas_guardadas: rows.length }
 }
 
 export async function upsertEntradasManuales(

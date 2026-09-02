@@ -1,9 +1,10 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http"
 import { enviarMensaje, descargarArchivo } from "./lib/telegram-api.js"
 import { extraerFarmacias } from "./lib/extract.js"
-import { upsertEntradasManuales } from "./lib/upsert-manual.js"
+import { upsertEntradasManuales, cargarTurnoSanNicolas } from "./lib/upsert-manual.js"
 import { hoyArgentinaYYYYMMDD } from "./lib/fecha.js"
 import { CIUDADES_MANUALES, resolverCiudadManual, type CiudadManual } from "./lib/types.js"
+import { esLetraTurnoValida, predecirLetraTurno, type LetraTurno } from "./lib/turnos-san-nicolas.js"
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8080
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET
@@ -12,7 +13,9 @@ const AYUDA = `Mandame una foto o un PDF con el cronograma de farmacias de turno
 
 Decime de qué ciudad es — como <b>descripción/caption</b> de la foto, o en un mensaje aparte (antes o después de mandarla, como te resulte más cómodo). No hace falta el slug exacto: "San Nicolás" también funciona.
 
-Ciudades habilitadas: ${CIUDADES_MANUALES.join(", ")}`
+Ciudades habilitadas: ${CIUDADES_MANUALES.join(", ")}
+
+Para <b>San Nicolás</b> hay un atajo: mandá solo la letra del turno de hoy (A-L, la que figura en el cartel del Colegio de Farmacéuticos) y cargo directo esas farmacias, sin necesidad de foto.`
 
 interface ArchivoDescargado {
   base64: string
@@ -150,9 +153,37 @@ async function manejarMensaje(message: TelegramMessage): Promise<void> {
     return
   }
 
+  const texto = message.text?.trim()
+
+  // Letra sola (A-L) = turno de hoy en San Nicolás. Se carga directo con
+  // el padrón fijo, sin pasar por Claude — mucho más rápido que mandar la
+  // foto. La predicción del ciclo es solo informativa, nunca se carga
+  // sin que el operador la confirme mandando la letra.
+  if (texto && esLetraTurnoValida(texto)) {
+    const letra = texto.toUpperCase() as LetraTurno
+    const fecha = hoyArgentinaYYYYMMDD()
+    const prediccion = predecirLetraTurno(fecha)
+    const { filas_guardadas, error } = await cargarTurnoSanNicolas(letra, fecha)
+
+    if (error) {
+      await enviarMensaje(chatId, `❌ Falló la carga a Supabase: ${error}`)
+      return
+    }
+
+    const notaPrediccion =
+      prediccion === letra
+        ? "✅ coincide con la predicción del ciclo"
+        : `⚠️ la predicción del ciclo daba "${prediccion}", anotado para revisar el patrón`
+
+    await enviarMensaje(
+      chatId,
+      `✅ Cargado <b>Turno ${letra}</b> en San Nicolás (${fecha}), ${filas_guardadas} farmacias — ${notaPrediccion}.`
+    )
+    return
+  }
+
   // Sin archivo: puede ser el nombre de una ciudad, ya sea contestando la
   // pregunta de arriba o adelantándose antes de mandar la foto/PDF.
-  const texto = message.text?.trim()
   const ciudadDelTexto = texto ? resolverCiudadManual(texto) : null
 
   if (ciudadDelTexto) {

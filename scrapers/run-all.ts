@@ -5,6 +5,7 @@ import { sendTelegramAlert } from "./lib/telegram.js"
 import { supabase } from "./lib/supabase-client.js"
 import type { ICityScraper, ScraperResult } from "./lib/types.js"
 import { ManualFallbackError } from "./lib/types.js"
+import { predecirLetraTurnoSanNicolas } from "./lib/prediccion-san-nicolas.js"
 
 import { santaRosaScraper, generalPicoScraper } from "./scrapers/santa-rosa/index.js"
 import { sanNicolasScraper } from "./scrapers/san-nicolas/index.js"
@@ -125,7 +126,16 @@ async function verificarYAlertar(fecha: string, outcomes: RunOutcome[]): Promise
   }
 
   const detalle = faltantes
-    .map((f) => `• <b>${f.ciudad_slug}</b>${f.error_msg ? ` — ${f.error_msg}` : " — sin datos de hoy"}`)
+    .map((f) => {
+      const base = `• <b>${f.ciudad_slug}</b>${f.error_msg ? ` — ${f.error_msg}` : " — sin datos de hoy"}`
+      // San Nicolás: además del error, informar la predicción del ciclo de
+      // turnos (ver scrapers/lib/prediccion-san-nicolas.ts) — es solo una
+      // ayuda visual, el operador confirma la letra real por Telegram.
+      if (f.ciudad_slug === "san-nicolas") {
+        return `${base}\n  Predicción del ciclo: Turno ${predecirLetraTurnoSanNicolas(fecha)} (sin confirmar — respondé la letra correcta por el bot)`
+      }
+      return base
+    })
     .join("\n")
 
   logger.error(
