@@ -4,7 +4,7 @@ import { extraerFarmacias } from "./lib/extract.js"
 import { upsertEntradasManuales, cargarTurnoSanNicolas } from "./lib/upsert-manual.js"
 import { hoyArgentinaYYYYMMDD } from "./lib/fecha.js"
 import { CIUDADES_MANUALES, resolverCiudadManual, type CiudadManual } from "./lib/types.js"
-import { esLetraTurnoValida, predecirLetraTurno, type LetraTurno } from "./lib/turnos-san-nicolas.js"
+import { extraerLetraTurnoSanNicolas, predecirLetraTurno } from "./lib/turnos-san-nicolas.js"
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8080
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET
@@ -15,7 +15,7 @@ Decime de qué ciudad es — como <b>descripción/caption</b> de la foto, o en u
 
 Ciudades habilitadas: ${CIUDADES_MANUALES.join(", ")}
 
-Para <b>San Nicolás</b> hay un atajo: mandá solo la letra del turno de hoy (A-L, la que figura en el cartel del Colegio de Farmacéuticos) y cargo directo esas farmacias, sin necesidad de foto.`
+Para <b>San Nicolás</b> hay un atajo: decime la ciudad y la letra del turno de hoy (A-L, la que figura en el cartel del Colegio de Farmacéuticos) — ej. <code>san nicolas: A</code> — y cargo directo esas farmacias, sin necesidad de foto.`
 
 interface ArchivoDescargado {
   base64: string
@@ -155,12 +155,14 @@ async function manejarMensaje(message: TelegramMessage): Promise<void> {
 
   const texto = message.text?.trim()
 
-  // Letra sola (A-L) = turno de hoy en San Nicolás. Se carga directo con
-  // el padrón fijo, sin pasar por Claude — mucho más rápido que mandar la
+  // Letra de turno para San Nicolás — sola ("A") o con la ciudad explícita
+  // ("san nicolas: A", en cualquier orden). Se carga directo con el
+  // padrón fijo, sin pasar por Claude — mucho más rápido que mandar la
   // foto. La predicción del ciclo es solo informativa, nunca se carga
   // sin que el operador la confirme mandando la letra.
-  if (texto && esLetraTurnoValida(texto)) {
-    const letra = texto.toUpperCase() as LetraTurno
+  const letraSanNicolas = texto ? extraerLetraTurnoSanNicolas(texto) : null
+  if (letraSanNicolas) {
+    const letra = letraSanNicolas
     const fecha = hoyArgentinaYYYYMMDD()
     const prediccion = predecirLetraTurno(fecha)
     const { filas_guardadas, error } = await cargarTurnoSanNicolas(letra, fecha)

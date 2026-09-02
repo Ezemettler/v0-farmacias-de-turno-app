@@ -3,6 +3,8 @@
 // Nicolás (agosto 2026): cada letra es siempre el mismo grupo de
 // farmacias, sin importar la fecha en la que caiga. Si el Colegio anuncia
 // un cambio de padrón, esta lista hay que actualizarla a mano.
+import { resolverCiudadManual } from "./types.js"
+
 export interface FarmaciaTurno {
   nombre: string
   direccion: string
@@ -131,4 +133,22 @@ export function predecirLetraTurno(fechaYYYYMMDD: string): LetraTurno {
   const diffDias = Math.round((objetivo - ref) / 86_400_000)
   const idx = ((diffDias % 12) + 12) % 12
   return LETRAS_TURNO[idx]
+}
+
+// Acepta la letra sola ("A") o con la ciudad explícita, en cualquier
+// orden y con separadores libres ("san nicolas: A", "san nicolas A",
+// "turno A san nicolas") — igual que con las demás ciudades, el operador
+// prefiere decir siempre la ciudad en vez de depender de un atajo mudo.
+export function extraerLetraTurnoSanNicolas(texto: string): LetraTurno | null {
+  const limpio = texto.trim()
+  if (esLetraTurnoValida(limpio)) return limpio.toUpperCase() as LetraTurno
+
+  const matchLetra = limpio.match(/(?:^|[\s:,-])([A-La-l])(?:$|[\s:,-])/)
+  if (!matchLetra) return null
+
+  const letra = matchLetra[1].toUpperCase() as LetraTurno
+  const resto = limpio.replace(matchLetra[0], " ").replace(/\bturno\b/gi, "").trim()
+  if (resto === "") return null // letra suelta ya se resolvió arriba; acá sin ciudad no alcanza
+
+  return resolverCiudadManual(resto) === "san-nicolas" ? letra : null
 }
