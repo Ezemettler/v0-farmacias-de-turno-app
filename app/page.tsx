@@ -106,6 +106,11 @@ export default function HomePage() {
       slug: "haedo",
       province: "Buenos Aires",
     },
+    {
+      name: "Hurlingham",
+      slug: "hurlingham",
+      province: "Buenos Aires",
+    },
   ]
 
   return (
