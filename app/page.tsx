@@ -116,6 +116,11 @@ export default function HomePage() {
       slug: "ituzaingo",
       province: "Buenos Aires",
     },
+    {
+      name: "Villa Tesei",
+      slug: "villa-tesei",
+      province: "Buenos Aires",
+    },
   ]
 
   return (
