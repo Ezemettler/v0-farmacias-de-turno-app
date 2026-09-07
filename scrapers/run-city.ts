@@ -18,6 +18,7 @@ import { berazateguiScraper, platanosScraper, hudsonScraper } from "./scrapers/b
 import { santaFeScraper, santoTomeScraper } from "./scrapers/santa-fe/index.js"
 import { rioGrandeScraper, ushuaiaScraper } from "./scrapers/rio-grande/index.js"
 import { moronScraper } from "./scrapers/moron/index.js"
+import { castelarScraper } from "./scrapers/castelar/index.js"
 
 const SCRAPERS: Record<string, ICityScraper> = {
   "san-nicolas": sanNicolasScraper,
@@ -37,6 +38,7 @@ const SCRAPERS: Record<string, ICityScraper> = {
   "rio-grande": rioGrandeScraper,
   "ushuaia": ushuaiaScraper,
   "moron": moronScraper,
+  "castelar": castelarScraper,
 }
 
 async function main(): Promise<void> {

@@ -96,6 +96,11 @@ export default function HomePage() {
       slug: "moron",
       province: "Buenos Aires",
     },
+    {
+      name: "Castelar",
+      slug: "castelar",
+      province: "Buenos Aires",
+    },
   ]
 
   return (

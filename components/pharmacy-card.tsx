@@ -44,6 +44,14 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
   let direccionParaMaps = direccionOverride ?? pharmacy.address.replace(/\s+B\.\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñA-ZÁÉÍÓÚÑ]*$/, "")
 
   if (!direccionOverride) {
+    // Igual que "calle + altura ignora la esquina" (regla ya confirmada más
+    // abajo), pero para el formato "Calle 2975 entre X y Y" con nombres de
+    // calle en vez de números — la altura ya alcanza para ubicar el punto,
+    // la referencia de entrecalles sobra y confunde al geocoder.
+    direccionParaMaps = direccionParaMaps.replace(/(\d+[A-Za-z]?)\s+(?:entre|e\/)\s+.+$/i, "$1")
+  }
+
+  if (!direccionOverride) {
     // Sistema de calles numeradas (La Plata/Berazategui/Los Hornos): la
     // fuente suele agregar la esquina o las entrecalles ("esq 8", "e/154
     // y 155") además de la altura ("Nro2971", "nro 654"). Confirmado a
