@@ -101,6 +101,11 @@ export default function HomePage() {
       slug: "castelar",
       province: "Buenos Aires",
     },
+    {
+      name: "Haedo",
+      slug: "haedo",
+      province: "Buenos Aires",
+    },
   ]
 
   return (
