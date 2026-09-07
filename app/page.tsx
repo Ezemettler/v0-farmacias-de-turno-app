@@ -91,6 +91,11 @@ export default function HomePage() {
       slug: "ushuaia",
       province: "Tierra del Fuego",
     },
+    {
+      name: "Morón",
+      slug: "moron",
+      province: "Buenos Aires",
+    },
   ]
 
   return (

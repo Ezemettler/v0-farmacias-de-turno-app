@@ -41,7 +41,8 @@ export async function GET() {
     { loc: `${baseUrl}/santa-fe`, lastmod },
     { loc: `${baseUrl}/santo-tome`, lastmod },
     { loc: `${baseUrl}/rio-grande`, lastmod },
-    { loc: `${baseUrl}/ushuaia`, lastmod }
+    { loc: `${baseUrl}/ushuaia`, lastmod },
+    { loc: `${baseUrl}/moron`, lastmod }
   ];
 
   const xml = buildSitemap(urls);

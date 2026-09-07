@@ -16,6 +16,7 @@ import { laPlataScraper, losHornosScraper } from "./scrapers/la-plata/index.js"
 import { berazateguiScraper, platanosScraper, hudsonScraper } from "./scrapers/berazategui/index.js"
 import { santaFeScraper, santoTomeScraper } from "./scrapers/santa-fe/index.js"
 import { rioGrandeScraper, ushuaiaScraper } from "./scrapers/rio-grande/index.js"
+import { moronScraper } from "./scrapers/moron/index.js"
 
 // Venado Tuerto sale temporalmente de la rotación: su única fuente
 // (cofarsf.org.ar) quedó con el dominio caído (NXDOMAIN) y no se encontró
@@ -37,6 +38,7 @@ const ALL_SCRAPERS: ICityScraper[] = [
   santoTomeScraper,
   rioGrandeScraper,
   ushuaiaScraper,
+  moronScraper,
 ]
 
 // Ciudades sin fuente automática, cargadas a mano vía el bot de Telegram
