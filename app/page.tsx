@@ -111,6 +111,11 @@ export default function HomePage() {
       slug: "hurlingham",
       province: "Buenos Aires",
     },
+    {
+      name: "Ituzaingó",
+      slug: "ituzaingo",
+      province: "Buenos Aires",
+    },
   ]
 
   return (

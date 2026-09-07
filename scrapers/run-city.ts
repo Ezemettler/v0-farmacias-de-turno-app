@@ -21,6 +21,7 @@ import { moronScraper } from "./scrapers/moron/index.js"
 import { castelarScraper } from "./scrapers/castelar/index.js"
 import { haedoScraper } from "./scrapers/haedo/index.js"
 import { hurlinghamScraper } from "./scrapers/hurlingham/index.js"
+import { ituzaingoScraper } from "./scrapers/ituzaingo/index.js"
 
 const SCRAPERS: Record<string, ICityScraper> = {
   "san-nicolas": sanNicolasScraper,
@@ -43,6 +44,7 @@ const SCRAPERS: Record<string, ICityScraper> = {
   "castelar": castelarScraper,
   "haedo": haedoScraper,
   "hurlingham": hurlinghamScraper,
+  "ituzaingo": ituzaingoScraper,
 }
 
 async function main(): Promise<void> {
