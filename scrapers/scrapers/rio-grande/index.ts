@@ -73,5 +73,7 @@ class MiTDFScraper extends BaseScraper {
   }
 }
 
+// Ushuaia se sacó de acá (ver scrapers/scrapers/ushuaia/index.ts): esta
+// fuente nunca publicaba dirección para esa ciudad puntual, aunque sí
+// para Río Grande.
 export const rioGrandeScraper = new MiTDFScraper("rio-grande", "Río Grande")
-export const ushuaiaScraper = new MiTDFScraper("ushuaia", "Ushuaia")

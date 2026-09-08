@@ -1,26 +1,50 @@
-import type { ICityScraper, ScraperResult } from "../../lib/types.js"
-import { ManualFallbackError } from "../../lib/types.js"
-import { hoyArgentinaYYYYMMDD } from "../../lib/fecha.js"
-import { logger } from "../../lib/logger.js"
+import { BaseScraper } from "../base-scraper.js"
+import { parseARTimeToISO, siguienteDia } from "../../lib/fecha.js"
+import type { ScrapedTurno, ScraperResult } from "../../lib/types.js"
 
-// San Pedro (Buenos Aires) — sin fuente oficial scrapeable identificada.
-// Verificar si el Colegio de Farmacéuticos Zona Norte BA (cofaba.org.ar)
-// lista San Pedro junto con San Nicolás. Si es así, reemplazar este stub
-// por una instancia de ColegioBANorteScraper de san-nicolas/index.ts.
-export class SanPedroScraper implements ICityScraper {
+// afsp.ar (Asociación Farmacéutica de San Pedro) — la home carga los
+// turnos vía un componente Vue que pega contra este endpoint JSON. Trae
+// día anterior/actual/siguiente en una sola llamada (campo tipo_dia),
+// filtramos por fecha exacta en vez de confiar en ese campo. El propio
+// componente indica el horario: "desde las 8:30 Hs. del dia que figura
+// en la planilla hasta las 8:30 del dia siguiente" (mismo estándar del
+// resto del sitio).
+const URL = "https://afsp.ar/metodos/farmacias.php?oper=turnos_inicial"
+
+interface RespuestaAFSP {
+  id: number | null
+  farmacia: string
+  fecha: string // "YYYY-MM-DD"
+  telefono: string
+  direccion: string
+  tipo_dia: string
+}
+
+class SanPedroScraper extends BaseScraper {
   readonly ciudad_slug = "san-pedro"
-  readonly scraper_key = "stub_manual"
+  readonly scraper_key = "afsp"
+  protected readonly url = URL
 
-  async scrape(_fechaAR?: string): Promise<ScraperResult> {
-    const fecha = _fechaAR ?? hoyArgentinaYYYYMMDD()
-    const error = new ManualFallbackError("San Pedro")
-    logger.warn(`[san-pedro] ${error.message}`)
+  protected async scrapeHtml(json: string, fecha: string): Promise<ScraperResult> {
+    const entradas: RespuestaAFSP[] = JSON.parse(json)
+
+    const rows: ScrapedTurno[] = entradas
+      .filter((e) => e.fecha === fecha)
+      .map((e) => ({
+        ciudad_slug: this.ciudad_slug,
+        fecha_turno: fecha,
+        nombre_farmacia: e.farmacia,
+        direccion: e.direccion,
+        telefono: e.telefono || undefined,
+        inicio_turno: parseARTimeToISO(fecha, "08:30"),
+        fin_turno: parseARTimeToISO(siguienteDia(fecha), "08:30"),
+      }))
+
     return {
       ciudad_slug: this.ciudad_slug,
-      status: "no_data",
-      rows: [],
-      source_url: "",
-      error,
+      status: rows.length > 0 ? "success" : "no_data",
+      rows,
+      source_url: this.url,
     }
   }
 }
