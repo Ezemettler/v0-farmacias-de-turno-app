@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en General Pico | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en General Pico. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/general-pico",
+  },
 }
 
 export default async function GeneralPicoPage() {

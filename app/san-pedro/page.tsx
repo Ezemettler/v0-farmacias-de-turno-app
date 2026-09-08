@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en San Pedro | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en San Pedro. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/san-pedro",
+  },
 }
 
 export default async function SanPedroPage() {

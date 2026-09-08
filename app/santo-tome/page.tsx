@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Santo Tomé | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en Santo Tomé. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/santo-tome",
+  },
 }
 
 export default async function SantoTomePage() {

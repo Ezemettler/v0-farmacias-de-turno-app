@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en San Nicolás | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en San Nicolás de los Arroyos. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/san-nicolas",
+  },
 }
 
 export default async function SanNicolasPage() {

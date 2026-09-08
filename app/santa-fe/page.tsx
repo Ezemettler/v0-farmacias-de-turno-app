@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Santa Fe | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en Santa Fe capital. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/santa-fe",
+  },
 }
 
 export default async function SantaFePage() {

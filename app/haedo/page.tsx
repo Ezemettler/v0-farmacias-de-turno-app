@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Haedo | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en Haedo. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/haedo",
+  },
 }
 
 export default async function HaedoPage() {

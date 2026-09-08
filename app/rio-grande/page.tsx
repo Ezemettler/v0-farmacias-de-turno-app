@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Río Grande | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en Río Grande. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/rio-grande",
+  },
 }
 
 export default async function RioGrandePage() {

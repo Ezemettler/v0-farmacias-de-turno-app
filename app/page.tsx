@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Argentina | Web farmacias de turno",
   description:
     "Encontrá farmacias abiertas hoy en tu ciudad. Información actualizada de farmacias de turno en Argentina.",
+  alternates: {
+    canonical: "/",
+  },
 }
 
 export default function HomePage() {

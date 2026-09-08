@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Castelar | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en Castelar. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/castelar",
+  },
 }
 
 export default async function CastelarPage() {

@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en San Rafael | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en San Rafael. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/san-rafael",
+  },
 }
 
 export default async function SanRafaelPage() {

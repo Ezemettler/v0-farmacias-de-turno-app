@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Hurlingham | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en Hurlingham. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/hurlingham",
+  },
 }
 
 export default async function HurlinghamPage() {

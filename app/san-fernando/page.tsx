@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en San Fernando | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en San Fernando. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/san-fernando",
+  },
 }
 
 export default async function SanFernandoPage() {

@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Berazategui | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en Berazategui. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/berazategui",
+  },
 }
 
 export default async function BerazateguiPage() {

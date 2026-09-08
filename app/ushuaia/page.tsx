@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Ushuaia | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en Ushuaia. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/ushuaia",
+  },
 }
 
 export default async function UshuaiaPage() {

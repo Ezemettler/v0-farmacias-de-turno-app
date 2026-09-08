@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Villa Tesei | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en Villa Tesei. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/villa-tesei",
+  },
 }
 
 export default async function VillaTeseiPage() {

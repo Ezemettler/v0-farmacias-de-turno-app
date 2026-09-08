@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en La Plata | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en La Plata. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/la-plata",
+  },
 }
 
 export default async function LaPlataPage() {

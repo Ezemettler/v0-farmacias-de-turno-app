@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Venado Tuerto | Web farmacias de turno",
   description:
     "Farmacias de turno hoy en Venado Tuerto. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/venado-tuerto",
+  },
 }
 
 export default async function VenadoTuertoPage() {
