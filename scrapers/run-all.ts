@@ -52,10 +52,15 @@ const ALL_SCRAPERS: ICityScraper[] = [
   villaTeseiScraper,
 ]
 
-// Ciudades sin fuente automática, cargadas a mano vía el bot de Telegram
-// (telegram-bot/). Mantener en sync con CIUDADES_MANUALES en
-// telegram-bot/lib/types.ts.
-const CIUDADES_MANUALES = ["venado-tuerto", "san-pedro", "san-nicolas"]
+// Ciudades sin cobertura diaria garantizada por scraper — se usa acá
+// solo para el aviso proactivo de "mandá una foto nueva" (una ciudad
+// con fuente automática que escribe todos los días siempre tendría
+// "hoy es el último día cargado", disparando el aviso a diario sin
+// sentido). San Pedro salió de esta lista al conseguir fuente propia
+// (afsp.ar) — sigue habilitada para carga manual por Telegram como
+// respaldo (ver CIUDADES_MANUALES en telegram-bot/lib/types.ts), pero
+// ya no necesita este recordatorio proactivo.
+const CIUDADES_MANUALES = ["venado-tuerto", "san-nicolas"]
 
 interface RunOutcome {
   ciudad_slug: string
