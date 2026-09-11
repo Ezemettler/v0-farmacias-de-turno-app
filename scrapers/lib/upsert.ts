@@ -53,6 +53,39 @@ export async function upsertTurnos(
     return { rows_upserted: 0 }
   }
 
+  // Algunas fuentes (confirmado en La Plata) reemplazan por completo su
+  // listado de "hoy" entre una corrida y la siguiente, en vez de solo
+  // agregar/corregir filas — el upsert de abajo nunca borra lo que ya no
+  // aparece, así que farmacias viejas quedaban acumulándose para siempre
+  // junto a las nuevas (llegó a duplicar el total). Antes de upsertear,
+  // se borran las filas de scraper (no overrides manuales) de esta
+  // ciudad+fecha que no están en la corrida actual.
+  const fecha = rowsToUpsert[0].fecha_turno
+  const { data: existentes, error: existentesError } = await supabase
+    .from("farmacias_turno")
+    .select("id, nombre_farmacia")
+    .eq("ciudad_slug", result.ciudad_slug)
+    .eq("fecha_turno", fecha)
+    .eq("es_override_manual", false)
+
+  if (existentesError) {
+    logger.warn(`[upsert] Error al leer filas existentes: ${existentesError.message}`)
+  }
+
+  const nombresFrescos = new Set(rowsToUpsert.map((r) => r.nombre_farmacia))
+  const idsObsoletos = (existentes ?? [])
+    .filter((e) => !nombresFrescos.has(e.nombre_farmacia))
+    .map((e) => e.id)
+
+  if (idsObsoletos.length > 0) {
+    const { error: deleteError } = await supabase.from("farmacias_turno").delete().in("id", idsObsoletos)
+    if (deleteError) {
+      logger.warn(`[upsert] Error al borrar filas obsoletas: ${deleteError.message}`)
+    } else {
+      logger.info(`[upsert] ${idsObsoletos.length} filas obsoletas borradas para ${result.ciudad_slug}`)
+    }
+  }
+
   const { error } = await supabase.from("farmacias_turno").upsert(rowsToUpsert, {
     onConflict: "ciudad_slug,fecha_turno,nombre_farmacia",
     ignoreDuplicates: false,
