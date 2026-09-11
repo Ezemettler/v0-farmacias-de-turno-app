@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import type { Metadata } from "next"
 import { CitySearch } from "@/components/city-search"
+import { CITIES } from "@/lib/cities"
 
 export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Argentina | Web farmacias de turno",
@@ -13,118 +14,7 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-  const cities = [
-    {
-      name: "San Nicolás de los Arroyos",
-      slug: "san-nicolas",
-      province: "Buenos Aires",
-    },
-    {
-      name: "San Pedro",
-      slug: "san-pedro",
-      province: "Buenos Aires",
-    },
-    {
-      name: "Santa Rosa",
-      slug: "santa-rosa",
-      province: "La Pampa",
-    },
-    {
-      name: "General Pico",
-      slug: "general-pico",
-      province: "La Pampa",
-    },
-    {
-      name: "San Fernando",
-      slug: "san-fernando",
-      province: "Buenos Aires",
-    },
-    {
-      name: "San Rafael",
-      slug: "san-rafael",
-      province: "Mendoza",
-    },
-    {
-      name: "Venado Tuerto",
-      slug: "venado-tuerto",
-      province: "Santa Fe",
-    },
-    {
-      name: "La Plata",
-      slug: "la-plata",
-      province: "Buenos Aires",
-    },
-    {
-      name: "Los Hornos",
-      slug: "los-hornos",
-      province: "Buenos Aires",
-    },
-    {
-      name: "Berazategui",
-      slug: "berazategui",
-      province: "Buenos Aires",
-    },
-    {
-      name: "Plátanos",
-      slug: "platanos",
-      province: "Buenos Aires",
-    },
-    {
-      name: "Hudson",
-      slug: "hudson",
-      province: "Buenos Aires",
-    },
-    {
-      name: "Santa Fe",
-      slug: "santa-fe",
-      province: "Santa Fe",
-    },
-    {
-      name: "Santo Tomé",
-      slug: "santo-tome",
-      province: "Santa Fe",
-    },
-    {
-      name: "Río Grande",
-      slug: "rio-grande",
-      province: "Tierra del Fuego",
-    },
-    {
-      name: "Ushuaia",
-      slug: "ushuaia",
-      province: "Tierra del Fuego",
-    },
-    {
-      name: "Morón",
-      slug: "moron",
-      province: "Buenos Aires",
-    },
-    {
-      name: "Castelar",
-      slug: "castelar",
-      province: "Buenos Aires",
-    },
-    {
-      name: "Haedo",
-      slug: "haedo",
-      province: "Buenos Aires",
-    },
-    {
-      name: "Hurlingham",
-      slug: "hurlingham",
-      province: "Buenos Aires",
-    },
-    {
-      name: "Ituzaingó",
-      slug: "ituzaingo",
-      province: "Buenos Aires",
-    },
-    {
-      name: "Villa Tesei",
-      slug: "villa-tesei",
-      province: "Buenos Aires",
-    },
-  ]
+  const cities = CITIES
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -6,6 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ChevronRight, Clock, Info } from "lucide-react"
 import { PharmacyCard } from "@/components/pharmacy-card"
+import { NearbyCities } from "@/components/nearby-cities"
 import type { Metadata } from "next"
 import { hoyArgentinaHumano } from "@/lib/fechaArgentina"
 import { fetchTurnos } from "@/lib/turnos"
@@ -131,6 +132,8 @@ export default async function HurlinghamPage() {
               </div>
             </section>
           )}
+
+          <NearbyCities currentSlug="hurlingham" />
         </div>
       </main>
 

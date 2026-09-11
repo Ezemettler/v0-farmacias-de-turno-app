@@ -1,5 +1,6 @@
 // app/sitemap.xml/route.ts
 import { NextResponse } from "next/server";
+import { CITIES } from "@/lib/cities";
 
 export const runtime = "nodejs";
 
@@ -26,28 +27,7 @@ export async function GET() {
 
   const urls = [
     { loc: `${baseUrl}/`, lastmod },
-    { loc: `${baseUrl}/san-nicolas`, lastmod },
-    { loc: `${baseUrl}/san-fernando`, lastmod },
-    { loc: `${baseUrl}/santa-rosa`, lastmod },
-    { loc: `${baseUrl}/general-pico`, lastmod },
-    { loc: `${baseUrl}/san-rafael`, lastmod },
-    { loc: `${baseUrl}/venado-tuerto`, lastmod },
-    { loc: `${baseUrl}/san-pedro`, lastmod },
-    { loc: `${baseUrl}/la-plata`, lastmod },
-    { loc: `${baseUrl}/los-hornos`, lastmod },
-    { loc: `${baseUrl}/berazategui`, lastmod },
-    { loc: `${baseUrl}/platanos`, lastmod },
-    { loc: `${baseUrl}/hudson`, lastmod },
-    { loc: `${baseUrl}/santa-fe`, lastmod },
-    { loc: `${baseUrl}/santo-tome`, lastmod },
-    { loc: `${baseUrl}/rio-grande`, lastmod },
-    { loc: `${baseUrl}/ushuaia`, lastmod },
-    { loc: `${baseUrl}/moron`, lastmod },
-    { loc: `${baseUrl}/castelar`, lastmod },
-    { loc: `${baseUrl}/haedo`, lastmod },
-    { loc: `${baseUrl}/hurlingham`, lastmod },
-    { loc: `${baseUrl}/ituzaingo`, lastmod },
-    { loc: `${baseUrl}/villa-tesei`, lastmod }
+    ...CITIES.map((c) => ({ loc: `${baseUrl}/${c.slug}`, lastmod })),
   ];
 
   const xml = buildSitemap(urls);
