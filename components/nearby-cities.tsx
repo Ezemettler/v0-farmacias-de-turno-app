@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { MapPin } from "lucide-react"
-import { getCiudadesRelacionadas } from "@/lib/cities"
+import { CITIES, getCiudadesRelacionadas } from "@/lib/cities"
 
 // Next.js renderiza <Link> como un <a href> normal en el HTML — Google
 // lo rastrea igual que un link nativo, con la ventaja de navegación sin
@@ -10,9 +10,11 @@ export function NearbyCities({ currentSlug }: { currentSlug: string }) {
 
   if (ciudades.length === 0) return null
 
+  const nombreActual = CITIES.find((c) => c.slug === currentSlug)?.name ?? ""
+
   return (
     <section className="space-y-3 pt-4">
-      <h2 className="text-xl font-bold">Farmacias de turno en localidades cercanas</h2>
+      <h2 className="text-xl font-bold">Farmacias de turno en localidades cercanas a {nombreActual}</h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {ciudades.map((ciudad) => (
           <Link

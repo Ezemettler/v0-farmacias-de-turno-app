@@ -32,30 +32,35 @@ export const CITIES: City[] = [
   { name: "Villa Tesei", slug: "villa-tesei", province: "Buenos Aires" },
 ]
 
-// Agrupa ciudades geográficamente vecinas DE VERDAD (radio ~30km), para
-// el módulo de "localidades cercanas" de cada página de ciudad. No hay
-// fallback para ciudades sin vecinas reales en el sitio — el módulo
-// simplemente no se muestra en esos casos, en vez de forzar una
-// cercanía que no existe (confirmado con el usuario: mostrar ciudades a
-// cientos/miles de km no le sirve a nadie).
-//
-// Descartados a propósito por no cumplir el radio, pese a estar en la
-// misma provincia: Santa Rosa-General Pico (~110km), Río Grande-Ushuaia
-// (~200km), San Nicolás-San Pedro (~40km, ligeramente por encima del
-// límite — a confirmar si se quiere sumar más adelante).
-const CLUSTERS_GEOGRAFICOS: string[][] = [
-  ["moron", "castelar", "haedo", "hurlingham", "ituzaingo", "villa-tesei"], // zona oeste GBA
-  ["berazategui", "platanos", "hudson"], // partido de Berazategui
-  ["la-plata", "los-hornos"],
-  ["santa-fe", "santo-tome"],
-]
+// Relación explícita por ciudad (no clusters simétricos) para el módulo
+// de "localidades cercanas" — máximo 2-3 por ciudad, solo las
+// verdaderamente pegadas. Zona oeste GBA se dividió en dos partidos
+// reales en vez de un cluster único de 6: Morón/Castelar/Haedo (Partido
+// de Morón) por un lado, Hurlingham/Villa Tesei/Ituzaingó por otro —
+// confirmado con el usuario que Hurlingham/Ituzaingó quedan más lejos
+// de Morón como para listarlas ahí. No hay fallback para ciudades sin
+// vecinas reales — el módulo no se muestra en esos casos.
+const RELACIONES: Record<string, string[]> = {
+  moron: ["castelar", "haedo"],
+  castelar: ["moron", "haedo"],
+  haedo: ["moron", "castelar"],
+  hurlingham: ["villa-tesei", "ituzaingo"],
+  "villa-tesei": ["hurlingham", "ituzaingo"],
+  ituzaingo: ["villa-tesei", "hurlingham"],
+  berazategui: ["platanos", "hudson"],
+  platanos: ["berazategui", "hudson"],
+  hudson: ["berazategui", "platanos"],
+  "la-plata": ["los-hornos"],
+  "los-hornos": ["la-plata"],
+  "santa-fe": ["santo-tome"],
+  "santo-tome": ["santa-fe"],
+}
 
 export function getCiudadesRelacionadas(slug: string): City[] {
-  const cluster = CLUSTERS_GEOGRAFICOS.find((grupo) => grupo.includes(slug))
-  if (!cluster) return []
+  const relacionados = RELACIONES[slug]
+  if (!relacionados) return []
 
-  return cluster
-    .filter((s) => s !== slug)
+  return relacionados
     .map((s) => CITIES.find((c) => c.slug === s))
     .filter((c): c is City => c !== undefined)
 }
