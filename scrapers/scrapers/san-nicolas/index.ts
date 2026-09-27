@@ -2,6 +2,9 @@ import * as cheerio from "cheerio"
 import { hoyArgentinaYYYYMMDD, parseARTimeToISO, siguienteDia } from "../../lib/fecha.js"
 import { logger } from "../../lib/logger.js"
 import type { ICityScraper, ScrapedTurno, ScraperResult } from "../../lib/types.js"
+import { predecirLetraTurnoSanNicolas } from "../../lib/prediccion-san-nicolas.js"
+import { ROSTER_SAN_NICOLAS } from "../../lib/roster-san-nicolas.js"
+import { sendTelegramAlert } from "../../lib/telegram.js"
 
 // diarioelnorte.com.ar — artículo diario con la lista de farmacias de turno.
 // URL: /farmacias-de-turno-en-san-nicolas-{diaSemana}-{día}-de-{mes}-de-{año}/
@@ -53,29 +56,67 @@ export class SanNicolasScraper implements ICityScraper {
       })
 
       if (!res.ok) {
-        logger.error(`[san-nicolas] HTTP ${res.status} — ${url}`)
-        return { ciudad_slug: this.ciudad_slug, status: "failed", rows: [], source_url: url }
+        logger.warn(`[san-nicolas] HTTP ${res.status} — ${url} — uso predicción del ciclo`)
+        return await this.usarPrediccion(fecha, `HTTP ${res.status}`)
       }
 
       html = await res.text()
     } catch (err) {
-      logger.error(`[san-nicolas] Error de red:`, err)
-      return { ciudad_slug: this.ciudad_slug, status: "failed", rows: [], source_url: url }
+      logger.warn(`[san-nicolas] Error de red — uso predicción del ciclo:`, err)
+      return await this.usarPrediccion(fecha, err instanceof Error ? err.message : String(err))
     }
 
     const rows = this.parse(html, fecha, url)
 
     if (rows.length === 0) {
-      logger.warn(`[san-nicolas] Sin farmacias. Verificar URL: ${url}`)
-    } else {
-      logger.info(`[san-nicolas] ${rows.length} farmacias encontradas`)
+      logger.warn(`[san-nicolas] Sin farmacias en el HTML — uso predicción del ciclo: ${url}`)
+      return await this.usarPrediccion(fecha, "HTML sin farmacias parseables")
     }
+
+    logger.info(`[san-nicolas] ${rows.length} farmacias encontradas`)
+    return {
+      ciudad_slug: this.ciudad_slug,
+      status: "success",
+      rows,
+      source_url: url,
+    }
+  }
+
+  // Respaldo automático cuando diarioelnorte.com.ar falla (típicamente
+  // bloqueo 403 de Cloudflare contra IPs de la nube). El ciclo de 12
+  // días (A→B→...→L→A) viene coincidiendo con la fuente real en todas
+  // las confirmaciones manuales hechas hasta ahora — a pedido del
+  // usuario, se carga directo en vez de esperar confirmación por
+  // Telegram. Sigue habilitada la corrección manual por el bot si
+  // alguna vez la predicción se desvía (ver telegram-bot/lib/
+  // turnos-san-nicolas.ts).
+  private async usarPrediccion(fecha: string, motivoFalloReal: string): Promise<ScraperResult> {
+    const grupo = predecirLetraTurnoSanNicolas(fecha)
+    const inicio_turno = parseARTimeToISO(fecha, "08:30")
+    const fin_turno = parseARTimeToISO(siguienteDia(fecha), "08:30")
+
+    const rows: ScrapedTurno[] = ROSTER_SAN_NICOLAS[grupo].map((f) => ({
+      ciudad_slug: this.ciudad_slug,
+      fecha_turno: fecha,
+      nombre_farmacia: f.nombre,
+      direccion: f.direccion,
+      inicio_turno,
+      fin_turno,
+    }))
+
+    logger.info(`[san-nicolas] Predicción del ciclo: Turno ${grupo} (${rows.length} farmacias)`)
+
+    await sendTelegramAlert(
+      `📋 <b>San Nicolás — turno cargado por predicción</b>\n` +
+        `La fuente real falló (${motivoFalloReal}), se cargó el <b>Turno ${grupo}</b> según el ciclo de 12 días.\n` +
+        `Si no coincide con el cartel real, corregilo mandándome la letra correcta por acá.`
+    )
 
     return {
       ciudad_slug: this.ciudad_slug,
-      status: rows.length > 0 ? "success" : "no_data",
+      status: "success",
       rows,
-      source_url: url,
+      source_url: `predicción del ciclo (Turno ${grupo}) — fuente real falló: ${motivoFalloReal}`,
     }
   }
 
