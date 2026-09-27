@@ -7,10 +7,12 @@ import Image from "next/image"
 import { ChevronRight, Clock, Info } from "lucide-react"
 import { PharmacyCard } from "@/components/pharmacy-card"
 import { NearbyCities } from "@/components/nearby-cities"
+import { CityDescription } from "@/components/city-description"
+import { PharmacySchema } from "@/components/pharmacy-schema"
 import type { Metadata } from "next"
 import { hoyArgentinaHumano } from "@/lib/fechaArgentina"
-import { fetchTurnos } from "@/lib/turnos"
-import { isOnDutyNow, formatARDateTime } from "@/lib/turno-utils"
+import { fetchTurnos, fetchCantidadFarmaciasRegistradas } from "@/lib/turnos"
+import { isOnDutyNow, formatARDateTime, formatARTimeOnly } from "@/lib/turno-utils"
 
 export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Hudson | Web farmacias de turno",
@@ -27,9 +29,12 @@ export default async function HudsonPage() {
 
   const pharmaciesOnDutyNow = turnos.filter(isOnDutyNow)
   const otherPharmacies = turnos.filter((x) => !isOnDutyNow(x))
+  const cantidadFarmacias = await fetchCantidadFarmaciasRegistradas("hudson")
+  const horaInicio = formatARTimeOnly(pharmaciesOnDutyNow[0]?.inicio_turno ?? null) || "08:30"
 
   return (
     <div className="min-h-screen flex flex-col">
+      <PharmacySchema pharmacies={pharmaciesOnDutyNow} cityName="Guillermo Enrique Hudson" province="Buenos Aires" />
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
           <Link href="/" className="inline-flex items-center gap-2 w-fit">
@@ -67,6 +72,8 @@ export default async function HudsonPage() {
               {currentDate.dateString}
             </Badge>
           </div>
+
+          <CityDescription cityName="Hudson" cantidadFarmacias={cantidadFarmacias} horaInicio={horaInicio} />
 
           {pharmaciesOnDutyNow.length > 0 ? (
             <section className="space-y-3">

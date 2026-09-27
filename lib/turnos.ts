@@ -39,3 +39,25 @@ export async function fetchTurnos(ciudadSlug: string): Promise<TurnoRow[]> {
 
   return (data ?? []) as TurnoRow[]
 }
+
+// Cantidad de farmacias distintas que pasaron por el cronograma de esta
+// ciudad — se usa en el párrafo descriptivo de cada página. Se normaliza
+// mayúsculas/espacios antes de contar para no inflar el número con la
+// misma farmacia cargada con distinta capitalización en corridas
+// distintas (ej. "Guenier" vs "GUENIER").
+export async function fetchCantidadFarmaciasRegistradas(ciudadSlug: string): Promise<number> {
+  const { data, error } = await supabase
+    .from("farmacias_turno")
+    .select("nombre_farmacia")
+    .eq("ciudad_slug", ciudadSlug)
+
+  if (error) {
+    console.error("[fetchCantidadFarmaciasRegistradas] Error Supabase:", error.message)
+    return 0
+  }
+
+  const nombresUnicos = new Set(
+    (data ?? []).map((r) => String(r.nombre_farmacia).trim().toUpperCase())
+  )
+  return nombresUnicos.size
+}

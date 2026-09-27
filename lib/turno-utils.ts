@@ -84,6 +84,23 @@ export function isOnDutyNow(row: Pick<TurnoRow, "inicio_turno" | "fin_turno">): 
   )
 }
 
+// Solo la hora "HH:MM" en horario argentino — usado para describir a
+// qué hora rota el turno en el párrafo descriptivo de cada ciudad, sin
+// hardcodear "08:30" en cada página (algunas fuentes, ej. Ushuaia,
+// tienen otro horario).
+export function formatARTimeOnly(raw: string | null): string {
+  if (!raw) return ""
+  const d = new Date(raw)
+  if (Number.isNaN(d.getTime())) return ""
+
+  return new Intl.DateTimeFormat("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(d)
+}
+
 export function formatARDateTime(raw: string | null): string {
   if (!raw) return ""
   const d = new Date(raw)
