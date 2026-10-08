@@ -61,3 +61,23 @@ export async function fetchCantidadFarmaciasRegistradas(ciudadSlug: string): Pro
   )
   return nombresUnicos.size
 }
+
+// Slugs de ciudades con al menos una farmacia de turno vigente ahora
+// mismo — se usa para el bloque de enlazado interno "Farmacias de turno
+// en otras ciudades", así no se linkea a una página que hoy está vacía.
+export async function fetchCiudadesConDatosHoy(): Promise<string[]> {
+  const ahora = new Date().toISOString()
+
+  const { data, error } = await supabase
+    .from("farmacias_turno")
+    .select("ciudad_slug")
+    .lte("inicio_turno", ahora)
+    .gte("fin_turno", ahora)
+
+  if (error) {
+    console.error("[fetchCiudadesConDatosHoy] Error Supabase:", error.message)
+    return []
+  }
+
+  return [...new Set((data ?? []).map((r) => r.ciudad_slug as string))]
+}

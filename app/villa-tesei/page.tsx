@@ -7,11 +7,12 @@ import Image from "next/image"
 import { ChevronRight, Clock, Info } from "lucide-react"
 import { PharmacyCard } from "@/components/pharmacy-card"
 import { NearbyCities } from "@/components/nearby-cities"
+import { OtherCitiesLinks } from "@/components/other-cities-links"
 import { CityDescription } from "@/components/city-description"
 import { PharmacySchema } from "@/components/pharmacy-schema"
 import type { Metadata } from "next"
 import { hoyArgentinaHumano } from "@/lib/fechaArgentina"
-import { fetchTurnos, fetchCantidadFarmaciasRegistradas } from "@/lib/turnos"
+import { fetchTurnos, fetchCantidadFarmaciasRegistradas, fetchCiudadesConDatosHoy } from "@/lib/turnos"
 import { isOnDutyNow, formatARDateTime, formatARTimeOnly } from "@/lib/turno-utils"
 
 export const metadata: Metadata = {
@@ -30,6 +31,7 @@ export default async function VillaTeseiPage() {
   const pharmaciesOnDutyNow = turnos.filter(isOnDutyNow)
   const otherPharmacies = turnos.filter((x) => !isOnDutyNow(x))
   const cantidadFarmacias = await fetchCantidadFarmaciasRegistradas("villa-tesei")
+  const ciudadesConDatos = await fetchCiudadesConDatosHoy()
   const horaInicio = formatARTimeOnly(pharmaciesOnDutyNow[0]?.inicio_turno ?? null) || "08:30"
 
   return (
@@ -141,6 +143,7 @@ export default async function VillaTeseiPage() {
           )}
 
           <NearbyCities currentSlug="villa-tesei" />
+          <OtherCitiesLinks currentSlug="villa-tesei" ciudadesConDatos={ciudadesConDatos} />
         </div>
       </main>
 
