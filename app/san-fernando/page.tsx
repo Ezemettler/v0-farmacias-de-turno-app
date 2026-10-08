@@ -11,21 +11,25 @@ import { OtherCitiesLinks } from "@/components/other-cities-links"
 import { CityDescription } from "@/components/city-description"
 import { PharmacySchema } from "@/components/pharmacy-schema"
 import type { Metadata } from "next"
-import { hoyArgentinaHumano } from "@/lib/fechaArgentina"
+import { hoyArgentinaHumano, hoyArgentinaHumanoSinComa } from "@/lib/fechaArgentina"
 import { fetchTurnos, fetchCantidadFarmaciasRegistradas, fetchCiudadesConDatosHoy } from "@/lib/turnos"
 import { isOnDutyNow, formatARDateTime, formatARTimeOnly } from "@/lib/turno-utils"
 
-export const metadata: Metadata = {
-  title: "Farmacias de turno hoy en San Fernando | Web farmacias de turno",
-  description:
-    "Farmacias de turno hoy en San Fernando. Información actualizada con direcciones, teléfonos y horarios.",
-  alternates: {
-    canonical: "/san-fernando",
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const fecha = hoyArgentinaHumanoSinComa()
+
+  return {
+    title: `Farmacias de turno hoy ${fecha} en San Fernando | Web farmacias de turno`,
+    description: `Farmacias de turno hoy ${fecha} en San Fernando. Información actualizada con direcciones, teléfonos y horarios.`,
+    alternates: {
+      canonical: "/san-fernando",
+    },
+  }
 }
 
 export default async function SanFernandoPage() {
   const currentDate = { dateString: hoyArgentinaHumano() }
+  const fechaHumana = hoyArgentinaHumanoSinComa()
   const turnos = await fetchTurnos("san-fernando")
 
   const pharmaciesOnDutyNow = turnos.filter(isOnDutyNow)
@@ -67,7 +71,7 @@ export default async function SanFernandoPage() {
         <div className="max-w-5xl mx-auto space-y-6">
           <div className="space-y-2">
             <h1 className="text-3xl md:text-4xl font-bold text-balance leading-tight">
-              Farmacias de turno hoy en San Fernando
+              {`Farmacias de turno hoy ${fechaHumana} en San Fernando`}
             </h1>
             <Badge variant="secondary" className="text-base py-1.5 px-3 w-fit">
               <Clock className="w-4 h-4 mr-1.5" />

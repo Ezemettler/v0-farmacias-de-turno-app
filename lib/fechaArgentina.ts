@@ -18,3 +18,11 @@ export function hoyArgentinaHumano(): string {
     month: "long",
   }).format(new Date());
 }
+
+// Misma fecha que hoyArgentinaHumano() pero sin la coma entre el día de
+// la semana y la fecha (ej. "miércoles 8 de octubre") — se usa en
+// title/H1 porque ahí se lee mejor sin coma ("...hoy miércoles 8 de
+// octubre en Hudson") que con ella.
+export function hoyArgentinaHumanoSinComa(): string {
+  return hoyArgentinaHumano().replace(",", "");
+}
