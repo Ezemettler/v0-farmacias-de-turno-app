@@ -22,7 +22,7 @@ ${items}
 }
 
 export async function GET() {
-  const baseUrl = "https://farmaciasdeturno.vercel.app";
+  const baseUrl = "https://farmaciasdeturnoar.com";
   const lastmod = new Date().toISOString();
 
   const urls = [

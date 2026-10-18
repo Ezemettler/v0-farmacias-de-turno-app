@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://farmaciasdeturno.vercel.app/sitemap.xml
+Sitemap: https://farmaciasdeturnoar.com/sitemap.xml

@@ -8,7 +8,7 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://farmaciasdeturno.vercel.app"),
+  metadataBase: new URL("https://farmaciasdeturnoar.com"),
   title: "Farmacias de turno hoy en Argentina | Web farmacias de turno",
   description:
     "Encontrá farmacias abiertas hoy en tu ciudad. Información clara y actualizada de farmacias de turno en Argentina.",
