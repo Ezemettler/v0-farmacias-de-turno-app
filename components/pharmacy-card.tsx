@@ -10,13 +10,14 @@ import { buildMapsUrl } from "@/lib/maps-url"
 interface PharmacyCardProps {
   pharmacy: Pharmacy
   isOnDuty: boolean
+  dutyBadgeLabel?: string
 }
 
 function hasValue(v: unknown) {
   return v !== null && v !== undefined && String(v).trim() !== ""
 }
 
-export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
+export function PharmacyCard({ pharmacy, isOnDuty, dutyBadgeLabel = "De turno ahora" }: PharmacyCardProps) {
   const phone = hasValue(pharmacy.phone) ? String(pharmacy.phone).trim() : ""
   const hours =
     hasValue((pharmacy as any).hours) ? String((pharmacy as any).hours).trim()
@@ -44,7 +45,7 @@ export function PharmacyCard({ pharmacy, isOnDuty }: PharmacyCardProps) {
           </Button>
         </div>
 
-        {isOnDuty && <Badge className="bg-accent text-accent-foreground w-fit">De turno ahora</Badge>}
+        {isOnDuty && <Badge className="bg-accent text-accent-foreground w-fit">{dutyBadgeLabel}</Badge>}
 
         <CardDescription className="space-y-1.5 text-sm md:text-base">
           {/* Dirección */}

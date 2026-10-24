@@ -8,11 +8,12 @@ import { ChevronRight, Clock, Info } from "lucide-react"
 import { PharmacyCard } from "@/components/pharmacy-card"
 import { NearbyCities } from "@/components/nearby-cities"
 import { OtherCitiesLinks } from "@/components/other-cities-links"
+import { NextShift } from "@/components/next-shift"
 import { CityDescription } from "@/components/city-description"
 import { PharmacySchema } from "@/components/pharmacy-schema"
 import type { Metadata } from "next"
 import { hoyArgentinaHumano } from "@/lib/fechaArgentina"
-import { fetchTurnos, fetchCantidadFarmaciasRegistradas, fetchCiudadesConDatosHoy } from "@/lib/turnos"
+import { fetchTurnos, fetchCantidadFarmaciasRegistradas, fetchCiudadesConDatosHoy, fetchProximoTurno } from "@/lib/turnos"
 import { isOnDutyNow, formatARDateTime, formatARTimeOnly } from "@/lib/turno-utils"
 
 export const metadata: Metadata = {
@@ -31,6 +32,7 @@ export default async function RioGrandePage() {
   const otherPharmacies = turnos.filter((x) => !isOnDutyNow(x))
   const cantidadFarmacias = await fetchCantidadFarmaciasRegistradas("rio-grande")
   const ciudadesConDatos = await fetchCiudadesConDatosHoy()
+  const proximoTurno = await fetchProximoTurno("rio-grande")
   const horaInicio = formatARTimeOnly(pharmaciesOnDutyNow[0]?.inicio_turno ?? null) || "08:30"
 
   return (
@@ -116,6 +118,15 @@ export default async function RioGrandePage() {
                 </div>
               </CardHeader>
             </Card>
+          )}
+
+          {proximoTurno && (
+            <NextShift
+              cityLabel="Río Grande, Tierra del Fuego"
+              turnos={proximoTurno.turnos}
+              minutosHastaInicio={proximoTurno.minutosHastaInicio}
+              esPrediccion={proximoTurno.esPrediccion}
+            />
           )}
 
           {otherPharmacies.length > 0 && (
