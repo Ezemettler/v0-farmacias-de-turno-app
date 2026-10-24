@@ -15,16 +15,12 @@ import { hoyArgentinaHumano, hoyArgentinaHumanoSinComa } from "@/lib/fechaArgent
 import { fetchTurnos, fetchCantidadFarmaciasRegistradas, fetchCiudadesConDatosHoy } from "@/lib/turnos"
 import { isOnDutyNow, formatARDateTime, formatARTimeOnly } from "@/lib/turno-utils"
 
-export async function generateMetadata(): Promise<Metadata> {
-  const fecha = hoyArgentinaHumanoSinComa()
-
-  return {
-    title: `Farmacias de turno hoy ${fecha} en Morón | Web farmacias de turno`,
-    description: `Farmacias de turno hoy ${fecha} en Morón. Información actualizada con direcciones, teléfonos y horarios.`,
-    alternates: {
-      canonical: "/moron",
-    },
-  }
+export const metadata: Metadata = {
+  title: "Farmacias de turno hoy en Morón | Web farmacias de turno",
+  description: "Farmacias de turno hoy en Morón. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/moron",
+  },
 }
 
 export default async function MoronPage() {

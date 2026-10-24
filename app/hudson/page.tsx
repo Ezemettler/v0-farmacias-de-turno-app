@@ -15,16 +15,12 @@ import { hoyArgentinaHumano, hoyArgentinaHumanoSinComa } from "@/lib/fechaArgent
 import { fetchTurnos, fetchCantidadFarmaciasRegistradas, fetchCiudadesConDatosHoy } from "@/lib/turnos"
 import { isOnDutyNow, formatARDateTime, formatARTimeOnly } from "@/lib/turno-utils"
 
-export async function generateMetadata(): Promise<Metadata> {
-  const fecha = hoyArgentinaHumanoSinComa()
-
-  return {
-    title: `Farmacias de turno hoy ${fecha} en Hudson | Web farmacias de turno`,
-    description: `Farmacias de turno hoy ${fecha} en Hudson. Información actualizada con direcciones, teléfonos y horarios.`,
-    alternates: {
-      canonical: "/hudson",
-    },
-  }
+export const metadata: Metadata = {
+  title: "Farmacias de turno hoy en Hudson | Web farmacias de turno",
+  description: "Farmacias de turno hoy en Hudson. Información actualizada con direcciones, teléfonos y horarios.",
+  alternates: {
+    canonical: "/hudson",
+  },
 }
 
 export default async function HudsonPage() {
