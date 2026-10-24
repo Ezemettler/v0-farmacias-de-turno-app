@@ -12,10 +12,15 @@ export function CityDescription({
   horaInicio: string
 }) {
   return (
-    <p className="text-muted-foreground text-pretty leading-relaxed">
-      {cityName} cuenta con {cantidadFarmacias} farmacia{cantidadFarmacias === 1 ? "" : "s"} de turno
-      registrada{cantidadFarmacias === 1 ? "" : "s"}. Todos los días, a partir de las {horaInicio} hs, una
-      o más farmacias quedan de guardia durante 24 horas para atender consultas y emergencias.
-    </p>
+    <div className="text-muted-foreground text-pretty leading-relaxed space-y-1">
+      <p>
+        {cityName} cuenta con {cantidadFarmacias} farmacia{cantidadFarmacias === 1 ? "" : "s"} de turno
+        registrada{cantidadFarmacias === 1 ? "" : "s"}.
+      </p>
+      <p>
+        Todos los días, a partir de las {horaInicio} hs, una o más farmacias quedan de guardia durante 24
+        horas.
+      </p>
+    </div>
   )
 }
