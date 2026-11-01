@@ -6,9 +6,16 @@ import type { ScrapedTurno, ScraperResult } from "../../lib/types.js"
 
 // berazategui.gob.ar (sitio municipal) — HTML en vivo con las farmacias
 // de turno AHORA para todo el partido de Berazategui (incluye
-// localidades como Plátanos y Hudson). Cada farmacia es un div.farma
-// con .texto1 (nombre), dos .texto2 (dirección y localidad entre
-// paréntesis) y dos .texto3 ("Teléfono: X" / "Whatsapp: X").
+// localidades como Plátanos y Hudson cuando hay alguna de turno ese
+// día). El sitio se rediseñó entre octubre y noviembre 2026
+// (confirmado a mano el 01/11, rompió el parser viejo basado en
+// .farma/.texto1/.texto2/.texto3) — ahora cada farmacia es un
+// <article class="tarjeta">: <h2 class="tarjeta-nombre"> para el
+// nombre, y dentro de .tarjeta-cuerpo varios div.dato: el de la
+// dirección trae un <span class="localidad"> adentro (el resto del
+// texto del div, antes del <br>, es la dirección), el del teléfono
+// trae un <span class="dato-etiqueta">Teléfono:</span> seguido del
+// número como texto suelto en el mismo div.
 const URL = "https://berazategui.gob.ar/farmacias_web/prueba.php"
 
 class BerazateguiScraper extends BaseScraper {
@@ -27,36 +34,57 @@ class BerazateguiScraper extends BaseScraper {
     const $ = cheerio.load(html)
     const rows: ScrapedTurno[] = []
 
-    $(".farma").each((_, card) => {
+    $(".tarjeta").each((_, card) => {
       const $card = $(card)
-      const nombre = $card.find(".texto1").first().text().trim()
+      const nombre = $card.find(".tarjeta-nombre").first().text().trim()
 
-      const textos2 = $card
-        .find(".texto2")
-        .map((_, t) => $(t).text().trim())
-        .get()
-      const direccion = textos2[0] ?? ""
-      const localidadTexto = (textos2[1] ?? "").replace(/[()]/g, "").trim()
+      let direccion = ""
+      let localidadTexto = ""
+      let telefono: string | undefined
+
+      $card.find(".dato").each((_, datoEl) => {
+        const $dato = $(datoEl)
+        const $localidad = $dato.find(".localidad")
+
+        if ($localidad.length > 0) {
+          localidadTexto = $localidad.first().text().trim()
+          direccion = $dato
+            .find("> div")
+            .first()
+            .clone()
+            .find(".localidad")
+            .remove()
+            .end()
+            .text()
+            .trim()
+          return
+        }
+
+        const etiqueta = $dato.find(".dato-etiqueta").first().text().trim()
+        if (/^tel[eé]fono:?$/i.test(etiqueta)) {
+          const crudo = $dato
+            .find("> div")
+            .first()
+            .clone()
+            .find(".dato-etiqueta")
+            .remove()
+            .end()
+            .text()
+            .trim()
+          // "-" y "S/E" (sin especificar) significan que no hay teléfono cargado.
+          telefono = crudo && !["-", "s/e"].includes(crudo.toLowerCase()) ? crudo : undefined
+        }
+      })
 
       if (localidadTexto.toLowerCase() !== this.localidad.toLowerCase()) return
       if (!nombre || !direccion) return
-
-      const textos3 = $card
-        .find(".texto3")
-        .map((_, t) => $(t).text().trim())
-        .get()
-      const telefonoLinea = textos3.find((t) => /^tel[eé]fono/i.test(t))
-      const telefonoCrudo = telefonoLinea?.replace(/^tel[eé]fono:\s*/i, "").trim()
-      // "-" y "S/E" (sin especificar) significan que no hay teléfono cargado.
-      const telefono =
-        telefonoCrudo && !["-", "s/e"].includes(telefonoCrudo.toLowerCase()) ? telefonoCrudo : undefined
 
       rows.push({
         ciudad_slug: this.ciudad_slug,
         fecha_turno: fecha,
         nombre_farmacia: nombre,
         direccion,
-        telefono: telefono && telefono !== "-" ? telefono : undefined,
+        telefono,
         inicio_turno: parseARTimeToISO(fecha, "08:30"),
         fin_turno: parseARTimeToISO(siguienteDia(fecha), "08:30"),
       })
