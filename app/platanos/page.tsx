@@ -17,7 +17,7 @@ import { fetchTurnos, fetchCantidadFarmaciasRegistradas, fetchCiudadesConDatosHo
 import { isOnDutyNow, formatARDateTime, formatARTimeOnly } from "@/lib/turno-utils"
 
 export const metadata: Metadata = {
-  title: "Farmacias de turno hoy en Plátanos | Web farmacias de turno",
+  title: "Farmacias de turno hoy en Plátanos | Abiertas ahora",
   description: "Farmacias de turno hoy en Plátanos. Información actualizada con direcciones, teléfonos y horarios.",
   alternates: {
     canonical: "/platanos",

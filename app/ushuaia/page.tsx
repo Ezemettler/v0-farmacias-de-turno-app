@@ -17,7 +17,7 @@ import { fetchTurnos, fetchCantidadFarmaciasRegistradas, fetchCiudadesConDatosHo
 import { isOnDutyNow, formatARDateTime, formatARTimeOnly } from "@/lib/turno-utils"
 
 export const metadata: Metadata = {
-  title: "Farmacias de turno hoy en Ushuaia | Web farmacias de turno",
+  title: "Farmacias de turno hoy en Ushuaia | Abiertas ahora",
   description: "Farmacias de turno hoy en Ushuaia. Información actualizada con direcciones, teléfonos y horarios.",
   alternates: {
     canonical: "/ushuaia",

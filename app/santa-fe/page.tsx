@@ -17,7 +17,7 @@ import { fetchTurnos, fetchCantidadFarmaciasRegistradas, fetchCiudadesConDatosHo
 import { isOnDutyNow, formatARDateTime, formatARTimeOnly } from "@/lib/turno-utils"
 
 export const metadata: Metadata = {
-  title: "Farmacias de turno hoy en Santa Fe | Web farmacias de turno",
+  title: "Farmacias de turno hoy en Santa Fe | Abiertas ahora",
   description: "Farmacias de turno hoy en Santa Fe capital. Información actualizada con direcciones, teléfonos y horarios.",
   alternates: {
     canonical: "/santa-fe",

@@ -17,7 +17,7 @@ import { fetchTurnos, fetchCantidadFarmaciasRegistradas, fetchCiudadesConDatosHo
 import { isOnDutyNow, formatARDateTime, formatARTimeOnly } from "@/lib/turno-utils"
 
 export const metadata: Metadata = {
-  title: "Farmacias de turno hoy en San Pedro | Web farmacias de turno",
+  title: "Farmacias de turno hoy en San Pedro | Abiertas ahora",
   description: "Farmacias de turno hoy en San Pedro. Información actualizada con direcciones, teléfonos y horarios.",
   alternates: {
     canonical: "/san-pedro",

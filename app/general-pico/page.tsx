@@ -17,7 +17,7 @@ import { fetchTurnos, fetchCantidadFarmaciasRegistradas, fetchCiudadesConDatosHo
 import { isOnDutyNow, formatARDateTime, formatARTimeOnly } from "@/lib/turno-utils"
 
 export const metadata: Metadata = {
-  title: "Farmacias de turno hoy en General Pico | Web farmacias de turno",
+  title: "Farmacias de turno hoy en General Pico | Abiertas ahora",
   description: "Farmacias de turno hoy en General Pico. Información actualizada con direcciones, teléfonos y horarios.",
   alternates: {
     canonical: "/general-pico",

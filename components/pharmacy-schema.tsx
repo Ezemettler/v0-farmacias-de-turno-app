@@ -29,6 +29,10 @@ export function PharmacySchema({
     },
     ...(p.telefono ? { telephone: p.telefono } : {}),
     hasMap: buildMapsUrl(p.direccion, `${cityName}, ${province}`),
+    // Fecha real en la que este turno entró en vigencia — no la fecha
+    // de build/deploy, así Google ve que el dato se actualiza de
+    // verdad día a día y no un valor fijo que nunca cambia.
+    ...(p.inicio_turno ? { dateModified: p.inicio_turno.slice(0, 10) } : {}),
   }))
 
   return (
