@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { CITIES } from "@/lib/cities"
+import { CIUDADES_VISIBLES } from "@/lib/cities"
 
 // Enlazado interno real (<a href> visible en el HTML crudo, sin depender
 // de JS) hacia el resto de las ciudades con farmacia de turno vigente
@@ -16,7 +16,7 @@ export function OtherCitiesLinks({
   currentSlug: string
   ciudadesConDatos: string[]
 }) {
-  const otrasCiudades = CITIES.filter(
+  const otrasCiudades = CIUDADES_VISIBLES.filter(
     (c) => c.slug !== currentSlug && ciudadesConDatos.includes(c.slug)
   )
 

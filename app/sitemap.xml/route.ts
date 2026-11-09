@@ -1,6 +1,6 @@
 // app/sitemap.xml/route.ts
 import { NextResponse } from "next/server";
-import { CITIES } from "@/lib/cities";
+import { CIUDADES_VISIBLES } from "@/lib/cities";
 import { supabase } from "@/lib/supabase";
 
 export const runtime = "nodejs";
@@ -55,7 +55,7 @@ export async function GET() {
 
   const urls = [
     { loc: `${baseUrl}/`, lastmod: masReciente },
-    ...CITIES.map((c) => ({
+    ...CIUDADES_VISIBLES.map((c) => ({
       loc: `${baseUrl}/${c.slug}`,
       lastmod: ultimaPorCiudad.get(c.slug) ?? masReciente,
     })),

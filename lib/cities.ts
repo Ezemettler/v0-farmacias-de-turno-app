@@ -32,6 +32,18 @@ export const CITIES: City[] = [
   { name: "Villa Tesei", slug: "villa-tesei", province: "Buenos Aires" },
 ]
 
+// Ciudades sacadas del listado, el sitemap y el buscador — la URL
+// sigue viva (no se borra la página), solo deja de ofrecerse como
+// opción, para el caso de que la fuente de datos de esa ciudad vuelva
+// a estar disponible más adelante. SOLO se agrega acá con aprobación
+// explícita de Eze, nunca de forma automática (ver alerta de ciudades
+// sin datos en el repo farmacias-seo-data). Al agregar un slug acá,
+// agregar también `robots: { index: false, follow: false }` al
+// `metadata` de esa página puntual en app/<slug>/page.tsx.
+const EXCLUIDAS_DEL_DIRECTORIO: string[] = []
+
+export const CIUDADES_VISIBLES: City[] = CITIES.filter((c) => !EXCLUIDAS_DEL_DIRECTORIO.includes(c.slug))
+
 // Relación explícita por ciudad (no clusters simétricos) para el módulo
 // de "localidades cercanas" — máximo 2-3 por ciudad, solo las
 // verdaderamente pegadas. Zona oeste GBA se dividió en dos partidos
@@ -61,6 +73,6 @@ export function getCiudadesRelacionadas(slug: string): City[] {
   if (!relacionados) return []
 
   return relacionados
-    .map((s) => CITIES.find((c) => c.slug === s))
+    .map((s) => CIUDADES_VISIBLES.find((c) => c.slug === s))
     .filter((c): c is City => c !== undefined)
 }

@@ -2,7 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import type { Metadata } from "next"
 import { CitySearch } from "@/components/city-search"
-import { CITIES } from "@/lib/cities"
+import { CIUDADES_VISIBLES } from "@/lib/cities"
 
 export const metadata: Metadata = {
   title: "Farmacias de turno hoy en Argentina | Web farmacias de turno",
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-  const cities = CITIES
+  const cities = CIUDADES_VISIBLES
 
   return (
     <div className="min-h-screen flex flex-col">
